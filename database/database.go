@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/lucas-passera/chat-server/entities"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -21,7 +22,6 @@ func ConnectDatabase() {
 	DB = db
 	fmt.Println("MySQL Connection Successfully!")
 
-	//Ejecuta la migración para las tablas 'Pet' y 'User'
 	err = DB.AutoMigrate(&entities.User{}, &entities.Message{})
 	if err != nil {
 		log.Fatal("Error migrating database:", err)

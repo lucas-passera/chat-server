@@ -7,6 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/lucas-passera/chat-server/entities"
+	"github.com/lucas-passera/chat-server/repository"
 )
 
 var upgrader = websocket.Upgrader{
@@ -34,7 +36,6 @@ func ChatHandler(c *gin.Context) {
 	log.Println("Nuevo cliente conectado")
 
 	for {
-		// Esperamos que el cliente envíe un mensaje
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error leyendo mensaje:", err)
@@ -44,7 +45,20 @@ func ChatHandler(c *gin.Context) {
 			break
 		}
 
-		// Enviar el mensaje a todos los clientes conectados
+		// Crear el mensaje con el contenido recibido como texto
+		message := entities.Message{
+			UserID:  1,           // Supón que el UserID es 1 para este ejemplo, en producción tomarías este valor de alguna forma
+			Content: string(msg), // El mensaje recibido como texto
+		}
+
+		// Guardar el mensaje en la base de datos
+		if err := repository.CreateMessage(&message); err != nil {
+			log.Println("Error guardando mensaje:", err)
+		} else {
+			log.Println("Mensaje guardado con éxito")
+		}
+
+		// Reenviar el mensaje a todos los clientes conectados
 		mu.Lock()
 		for c := range connections {
 			if err := c.WriteMessage(websocket.TextMessage, msg); err != nil {

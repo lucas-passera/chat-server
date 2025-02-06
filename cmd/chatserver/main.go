@@ -15,6 +15,7 @@ func main() {
 	routes.SetupRoutes(router)
 	fmt.Println("Servidor chat corriendo en el puerto 8081")
 	router.Run(":8081")
+
 	//	r := mux.NewRouter()
 
 	////ping pong route
