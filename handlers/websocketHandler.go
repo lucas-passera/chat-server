@@ -78,21 +78,6 @@ func ChatHandler(c *gin.Context) {
 		//
 		// Guardar el mensaje en la base de datos
 
-		if err := repository.CreateMessage(&message); err != nil {
-			log.Println("Error guardando mensaje:", err)
-		} else {
-			log.Println("Mensaje guardado con éxito")
-		}
-
-		// Reenviar el mensaje a todos los clientes conectados
-		mu.Lock()
-		for c := range connections {
-			if err := c.WriteMessage(websocket.TextMessage, msg); err != nil {
-				log.Println("Error enviando mensaje:", err)
-			}
-		}
-		mu.Unlock()
-
 		// Guardar el mensaje en la base de datos
 		if err := repository.CreateMessage(&message); err != nil {
 			log.Println("Error guardando mensaje:", err)
