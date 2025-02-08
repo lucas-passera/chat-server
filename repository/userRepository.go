@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/lucas-passera/chat-server/database"
 	"github.com/lucas-passera/chat-server/entities"
@@ -55,4 +57,17 @@ func DeleteUser(id uint) error {
 		return errors.New("usuario no encontrado")
 	}
 	return database.DB.Delete(&user).Error
+}
+
+var db *sql.DB
+
+func CheckUserID(userID string) (bool, error) {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE user_id = ?)"
+	err := db.QueryRow(query, userID).Scan(&exists)
+	if err != nil {
+		log.Println("Error al consultar el usuario:", err)
+		return false, err
+	}
+	return exists, nil
 }

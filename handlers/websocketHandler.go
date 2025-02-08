@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
@@ -19,6 +20,7 @@ var upgrader = websocket.Upgrader{
 
 var connections = make(map[*websocket.Conn]bool) // Conexiones activas de WebSocket
 var mu sync.Mutex
+var msg string
 
 // ChatHandler maneja la conexión WebSocket
 func ChatHandler(c *gin.Context) {
@@ -45,13 +47,37 @@ func ChatHandler(c *gin.Context) {
 			break
 		}
 
-		// Crear el mensaje con el contenido recibido como texto
-		message := entities.Message{
-			UserID:  1,           // Supón que el UserID es 1 para este ejemplo, en producción tomarías este valor de alguna forma
-			Content: string(msg), // El mensaje recibido como texto
+		// 🔍 LOG PARA DEBUG: Verificar que se está recibiendo el mensaje
+		log.Println("Mensaje recibido:", string(msg))
+
+		var message entities.Message
+		err = json.Unmarshal(msg, &message)
+		if err != nil {
+			log.Println("Error al parsear el mensaje:", err)
+			continue
 		}
 
+		// Ahora puedes acceder al user_id
+		userID := message.UserID
+		log.Printf("Recibido mensaje de user_id: %d, contenido: %s", userID, message.Content)
+
+		//userIDStr := strconv.FormatUint(uint64(message.UserID), 10)
+		//
+		//// Verifica si el usuario existe pasando el ID como string
+		//existsUser, err := repository.CheckUserID(userIDStr) // Pasamos el userID convertido a string
+		//if err != nil {
+		//	log.Println("Error al verificar si el usuario existe:", err)
+		//	return
+		//}
+		//
+		//if existsUser {
+		//	log.Printf("El usuario con ID %s existe", userIDStr)
+		//} else {
+		//	log.Printf("El usuario con ID %s NO existe", userIDStr)
+		//}
+		//
 		// Guardar el mensaje en la base de datos
+
 		if err := repository.CreateMessage(&message); err != nil {
 			log.Println("Error guardando mensaje:", err)
 		} else {
@@ -66,5 +92,22 @@ func ChatHandler(c *gin.Context) {
 			}
 		}
 		mu.Unlock()
+
+		// Guardar el mensaje en la base de datos
+		if err := repository.CreateMessage(&message); err != nil {
+			log.Println("Error guardando mensaje:", err)
+		} else {
+			log.Println("Mensaje guardado con éxito:", message)
+		}
+
+		// Reenviar el mensaje a todos los clientes conectados
+		mu.Lock()
+		for c := range connections {
+			if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+				log.Println("Error enviando mensaje:", err)
+			}
+		}
+		mu.Unlock()
 	}
+
 }
