@@ -6,17 +6,18 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
-	// Rutas de usuario
+	// User routes
 	router.POST("/users", handlers.CreateUser)
 	router.GET("/users", handlers.GetAllUsers)
+	router.GET("users/:id", handlers.GetUser)
 	router.PUT("/users", handlers.UpdateUser)
 	router.DELETE("/users/:id", handlers.DeleteUser)
 
-	// Rutas de mensajes
+	// Message routes
 	router.POST("/messages", handlers.CreateMessage)
 	router.GET("/messages", handlers.GetAllMessages)
 	router.DELETE("/messages/:id", handlers.DeleteMessage)
 
-	// Ruta WebSocket para el chat en tiempo real
+	// WebSocket
 	router.GET("/chat", handlers.ChatHandler)
 }

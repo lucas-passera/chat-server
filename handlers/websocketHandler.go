@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/lucas-passera/chat-server/entities"
+	"github.com/lucas-passera/chat-server/service"
 )
 
 var upgrader = websocket.Upgrader{
@@ -15,10 +18,10 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-var connections = make(map[*websocket.Conn]bool) // Conexiones activas de WebSocket
+var connections = make(map[*websocket.Conn]bool) //Active connections map
 var mu sync.Mutex
 
-// ChatHandler maneja la conexión WebSocket
+// Handler WebSocket
 func ChatHandler(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -26,31 +29,40 @@ func ChatHandler(c *gin.Context) {
 		return
 	}
 	defer conn.Close()
-
 	mu.Lock()
 	connections[conn] = true
 	mu.Unlock()
 
-	log.Println("Nuevo cliente conectado")
+	log.Println("New client connected")
 
 	for {
-		// Esperamos que el cliente envíe un mensaje
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Error leyendo mensaje:", err)
-			mu.Lock()
-			delete(connections, conn)
-			mu.Unlock()
+			log.Println("Error reading message:", err)
 			break
 		}
+		log.Println("Message received:", string(msg))
 
-		// Enviar el mensaje a todos los clientes conectados
+		var message entities.Message
+		err = json.Unmarshal(msg, &message)
+		if err != nil {
+			log.Println("Error parsing the message:", err)
+			continue
+		}
+
+		if err := service.NewMessageService().CreateMessage(&message); err != nil {
+			log.Println("Error saving message:", err)
+		} else {
+			log.Printf("Message saved: (ID-%d) UserID-%d: %s (%s)", message.ID, message.UserID, message.Content, message.CreatedAt)
+		}
+
 		mu.Lock()
 		for c := range connections {
-			if err := c.WriteMessage(websocket.TextMessage, msg); err != nil {
-				log.Println("Error enviando mensaje:", err)
+			if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+				log.Println("Error sending message", err)
 			}
 		}
 		mu.Unlock()
 	}
+
 }
