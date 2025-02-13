@@ -12,6 +12,8 @@ func SetupRoutes(router *gin.Engine) {
 	router.GET("users/:id", handlers.GetUser)
 	router.PUT("/users", handlers.UpdateUser)
 	router.DELETE("/users/:id", handlers.DeleteUser)
+	router.DELETE("/users/delete-users", handlers.DeleteAllUsers)
+	//TODO deleteAll Accessible to admins only
 
 	// Message routes
 	router.POST("/messages", handlers.CreateMessage)

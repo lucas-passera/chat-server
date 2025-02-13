@@ -82,3 +82,12 @@ func DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
 }
+
+func DeleteAllUsers(c *gin.Context) {
+	if err := service.NewUserService().DeleteAllUsers(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not reset users"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "All users deleted, ID reset to 1"})
+}

@@ -52,6 +52,23 @@ func DeleteUser(id uint) error {
 	return database.DB.Delete(&user).Error
 }
 
+func DeleteAllUsers() error {
+	db := database.DB
+	tx := db.Begin()
+
+	if err := tx.Exec("DELETE FROM users").Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Exec("ALTER TABLE users AUTO_INCREMENT = 1").Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
 func CheckUserID(userID uint) (bool, error) {
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)"

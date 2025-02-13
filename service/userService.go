@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucas-passera/chat-server/entities"
 	"github.com/lucas-passera/chat-server/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct{}
@@ -18,6 +19,21 @@ func (s *UserService) CreateUser(user *entities.User) error {
 	if user.Username == "" {
 		return errors.New("username is required")
 	}
+
+	if user.Password == "" {
+		return errors.New("password is required")
+	}
+
+	if len(user.Password) > 15 {
+		return errors.New("password must be at most 15 characters long")
+	}
+
+	hashedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		return errors.New("could not hash password")
+	}
+
+	user.Password = hashedPassword
 	return repository.CreateUser(user)
 }
 
@@ -50,4 +66,14 @@ func (s *UserService) DeleteUser(id uint) error {
 		return errors.New("user not found")
 	}
 	return repository.DeleteUser(id)
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
+}
+
+func (s *UserService) DeleteAllUsers() error {
+	// Llamada al repositorio para eliminar todos los usuarios
+	return repository.DeleteAllUsers() // Este método debe estar en tu repositorio
 }

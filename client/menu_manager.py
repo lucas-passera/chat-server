@@ -48,7 +48,16 @@ class MenuManager :
             elif option == "2":
                 username = input("Please enter your username: ")
                 print(f"New username: {username}")
-                data = {"username": username}
+                
+                while True:
+                    password = input("Please enter your password (max 15 characters): ")
+                    if not password:
+                        print("Password cannot be empty. Please try again.")
+                    elif len(password) > 15:
+                        print("Password is too long. Maximum length is 15 characters.")
+                    else:
+                        data = {"username": username, "password": password}
+                        break 
                 response = requests.post(url + "users/", json=data)                
                 
                 if response.status_code == 200: 
