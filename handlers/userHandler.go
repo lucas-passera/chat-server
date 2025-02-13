@@ -41,6 +41,17 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+func GetUserByUsername(c *gin.Context) {
+	username := c.Param("username")
+	user, err := service.NewUserService().GetUserByUsername(username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
 func GetAllUsers(c *gin.Context) {
 	users, err := service.NewUserService().GetAllUsers()
 	if err != nil {

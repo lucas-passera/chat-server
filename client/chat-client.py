@@ -29,10 +29,18 @@ class ChatClient:
             response = requests.get(f"{url}users/{self.user_id}")
             if response.status_code == 200:
                 user_data = response.json()  
-                self.username = user_data.get("user", {}).get("username")  
-                break
+                self.username = user_data.get("user", {}).get("username") 
+                self.password = user_data.get("user", {}).get("password") 
+                in_password = MenuManager.request_pass(self)
+                if (in_password=="0"):
+                    break
+                if MenuManager.check_password_hash(in_password, self.password):
+                    print("¡Successful registration!")
+                    break
+                else:
+                    print("Incorrect password, please, try again!.")
             else:
-                id_aux = MenuManager.user_id_notfound_menu(self)
+                id_aux = MenuManager.user_notfound_menu(self)
                 if id_aux == None :
                     exit()
                 else:

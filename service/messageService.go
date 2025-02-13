@@ -51,3 +51,7 @@ func (s *MessageService) DeleteMessage(id uint) error {
 	}
 	return repository.DeleteMessage(id)
 }
+
+func (s *MessageService) DeleteAllMessages() error {
+	return repository.DeleteAllMessages()
+}

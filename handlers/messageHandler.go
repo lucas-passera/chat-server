@@ -100,3 +100,12 @@ func DeleteMessage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "message delete successfully."})
 }
+
+func DeleteAllMessages(c *gin.Context) {
+	if err := service.NewMessageService().DeleteAllMessages(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not reset messages"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "All messages deleted, ID reset to 1"})
+}

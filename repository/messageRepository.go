@@ -51,6 +51,26 @@ func DeleteMessage(id uint) error {
 	return database.DB.Delete(&msg).Error
 }
 
+func DeleteAllMessages() error {
+	db := database.DB
+	tx := db.Begin() // Comienza una transacción
+
+	// Eliminar todos los mensajes
+	if err := tx.Exec("DELETE FROM messages").Error; err != nil {
+		tx.Rollback() // Si ocurre un error, revierte la transacción
+		return err
+	}
+
+	// Reiniciar el AUTO_INCREMENT para la tabla de mensajes
+	if err := tx.Exec("ALTER TABLE messages AUTO_INCREMENT = 1").Error; err != nil {
+		tx.Rollback() // Si ocurre un error, revierte la transacción
+		return err
+	}
+
+	// Si todo sale bien, confirma la transacción
+	return tx.Commit().Error
+}
+
 func CheckMessageID(messageID uint) (bool, error) {
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM messages WHERE id = ?)"

@@ -74,6 +74,5 @@ func hashPassword(password string) (string, error) {
 }
 
 func (s *UserService) DeleteAllUsers() error {
-	// Llamada al repositorio para eliminar todos los usuarios
-	return repository.DeleteAllUsers() // Este método debe estar en tu repositorio
+	return repository.DeleteAllUsers()
 }

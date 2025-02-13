@@ -1,5 +1,6 @@
 import json
 import sys
+import bcrypt
 import requests
 
 url = "http://localhost:8081/"
@@ -28,24 +29,26 @@ class MenuManager :
             else:
                 print("Invalid option. Please enter 0, 1, 2, or 3.\n")
     
-    def user_id_notfound_menu(self):  
+    def user_notfound_menu(self):  
         while True:
-            print("USER ID NOT FOUND.")
-            print("1-Enter another ID.")
-            print("2-Create a new user.")
+            print("USER NOT FOUND.")
+            print("1-Try again.")
+            print("2-Enter with ID.")
+            print("3-Create a new user.")
             print("0-Exit.")
             option = input("Choose an option: ").strip()
             print()
 
             if option == "0":
-                return None
-                break
+                return 0  
 
-            elif option == "1":
+            elif option =="1":
+                self.username = MenuManager.request_username(self) 
+            elif option == "2":
                 user_id = MenuManager.request_id(self)
                 return user_id
             
-            elif option == "2":
+            elif option == "3":
                 username = input("Please enter your username: ")
                 print(f"New username: {username}")
                 
@@ -65,6 +68,7 @@ class MenuManager :
                     user_id = response_data["user"].get("ID")  
                     print(f"User created successfully with ID: {user_id}")
                     print()
+                    break
 
                 else:
                     print(f"Error: {response.status_code} - {response.text}")
@@ -72,6 +76,7 @@ class MenuManager :
                     user_id=response_data.get("id")
 
                 return user_id
+              
             
             else:
                 print("\nInvalid option.") 
@@ -85,6 +90,29 @@ class MenuManager :
             else:
                 print("Invalid ID. The user ID must be between 1 and 5 digits long. Only numbers are allowed.")
 
+    def request_username(self):
+        while True:
+            username = input("\nEnter your username:")
+            print()
+            if 0 < len(username) <= 15 :
+                return username
+            else:
+                print("Invalid username. The username must be between 1 and 15 characters")
+
+    def request_pass(self):
+        while True:
+            password = input("Please enter your password (0 para salir): ")
+            if (password=="0"):
+                return password    
+            else:
+                if not password:
+                    print("Password cannot be empty. Please try again.")
+                elif len(password) > 15:
+                    print("Password is too long. Maximum length is 15 characters.")
+                else:
+                    return password
+                
+                
     def choice_function(self, a: int,client):
         print(f"You selected option {a}.")
         if a == 1:
@@ -112,3 +140,10 @@ class MenuManager :
         elif a == 0:
             print("Exiting...")
             sys.exit()
+
+    
+    def check_password_hash(provided_password, stored_hash):
+        if bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash.encode('utf-8')):
+            return True
+        else:
+            return False
