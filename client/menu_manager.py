@@ -40,13 +40,63 @@ class MenuManager :
             print()
 
             if option == "0":
+                print("Exiting...")
                 return 0  
 
             elif option =="1":
-                self.username = MenuManager.request_username(self) 
+                self.username = MenuManager.request_username(self)
+                response = requests.get(f"{url}users/username/{self.username}")
+
+                while True:
+                    if response.status_code == 200:
+                        user_data = response.json()
+
+                        self.user_id = user_data.get("user", {}).get("ID") 
+                        self.username = user_data.get("user", {}).get("username") 
+                        self.password = user_data.get("user", {}).get("password") 
+                        in_password = MenuManager.request_pass(self)
+                        if (in_password=="0"):
+                            break
+
+                        if MenuManager.check_password_hash(in_password, self.password):
+                            print("¡Successful registration!")
+                            self.register_ok = 1
+                            print("----------------------------------")
+                            print(f"Hi, {self.username}!")
+                            break
+                        else:
+                            print("Incorrect password, please, try again!.")
+                    else:
+                        MenuManager.user_notfound_menu(self)
+                        break
+                        
+                
+
             elif option == "2":
-                user_id = MenuManager.request_id(self)
-                return user_id
+                self.user_id = MenuManager.request_id(self)
+                while True:
+                    response = requests.get(f"{url}users/{self.user_id}")
+                    if response.status_code == 200:
+                        user_data = response.json() 
+                        self.user_id = user_data.get("user", {}).get("id")
+                        self.username = user_data.get("user", {}).get("username") 
+                        self.password = user_data.get("user", {}).get("password") 
+                        while True:
+                            in_password = MenuManager.request_pass(self)
+                            if (in_password=="0"):
+                                break   
+                            if MenuManager.check_password_hash(in_password, self.password):
+                                print("¡Successful registration!")
+                                self.register_ok = 1
+                                print("----------------------------------")
+                                print(f"Hi, {self.username}!")
+                                break
+                            else:
+                                print("Incorrect password, please, try again!.")
+                        break
+                    else:
+                        MenuManager.user_notfound_menu(self)
+                        break
             
             elif option == "3":
                 username = input("Please enter your username: ")
@@ -80,6 +130,8 @@ class MenuManager :
             
             else:
                 print("\nInvalid option.") 
+        
+            break
 
     def request_id(self):
         while True:

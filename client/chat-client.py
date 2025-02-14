@@ -23,12 +23,15 @@ class ChatClient:
         print("---- ¡Welcome to chat-server! ----")
         print("----------------------------------")
     
-        self.user_id = MenuManager.request_id(self) 
-
+        self.register_ok = 0
+        self.user_id = 0 
+        self.username = MenuManager.request_username(self)
+        
         while True:
-            response = requests.get(f"{url}users/{self.user_id}")
+            response = requests.get(f"{url}users/username/{self.username}")
             if response.status_code == 200:
-                user_data = response.json()  
+                user_data = response.json() 
+                self.user_id = user_data.get("user", {}).get("ID")
                 self.username = user_data.get("user", {}).get("username") 
                 self.password = user_data.get("user", {}).get("password") 
                 in_password = MenuManager.request_pass(self)
@@ -36,18 +39,18 @@ class ChatClient:
                     break
                 if MenuManager.check_password_hash(in_password, self.password):
                     print("¡Successful registration!")
+                    self.register_ok = 1
+                    print("----------------------------------")
+                    print(f"Hi, {self.username}!")
                     break
                 else:
                     print("Incorrect password, please, try again!.")
             else:
-                id_aux = MenuManager.user_notfound_menu(self)
-                if id_aux == None :
-                    exit()
-                else:
-                    self.user_id=id_aux
+                MenuManager.user_notfound_menu(self)
+                break
+                
 
-        print("----------------------------------")
-        print(f"Hi, {self.username}!")
+        
 
     def on_message(self, ws, message):
         try:
@@ -79,7 +82,7 @@ class ChatClient:
             time.sleep(0.2)
 
             #This is for delete the user line in console when the msg was sent
-            sys.stdout.write(f"{self.user_id}: ")
+            sys.stdout.write(f"{self.username}: ")
             sys.stdout.flush()
             msg = input("")  
             sys.stdout.write("\033[F\033[K")  #Move the cursor up and delete the line.
@@ -142,10 +145,10 @@ class ChatClient:
 if __name__ == "__main__":
     client = ChatClient() 
     menu_manager_instance = MenuManager(client)
-    client.menu_manager_instance = menu_manager_instance
-
-    while True:
-        selected_option = menu_manager_instance.show_app_menu_and_choose()
-        menu_manager_instance.choice_function(selected_option, client)
+    #client.menu_manager_instance = menu_manager_instance
+    if client.register_ok==1:
+        while True:
+            selected_option = menu_manager_instance.show_app_menu_and_choose()
+            menu_manager_instance.choice_function(selected_option, client)
         
     
