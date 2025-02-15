@@ -20,7 +20,9 @@ class MenuManager :
         option = 2  #value for enter 
 
         while True:
+
             if(option==2):
+
                 if(invalidOpt==0):
                     print("ERROR: USER NOT FOUND.\n")
 
@@ -29,7 +31,6 @@ class MenuManager :
                 print()
 
                 if option == "0":
-
                     print("Exiting...")
                     return 0  
 
@@ -40,15 +41,18 @@ class MenuManager :
                     response = requests.get(f"{url}users/username/{self.username}")
 
                     while True:
+
                         if response.status_code == 200:
                             user_data = response.json()
 
                             self.user_id = user_data.get("user", {}).get("ID") 
                             self.username = user_data.get("user", {}).get("username") 
                             self.password = user_data.get("user", {}).get("password") 
+
                             in_password = MenuManager.request_pass(self)
                             if (in_password=="0"):
                                 sys.exit()
+
                             if MenuManager.check_password_hash(in_password, self.password):
                                 print("¡SUCCESSFUL REGISTRATION!")
                                 self.register_ok = 1
@@ -57,25 +61,35 @@ class MenuManager :
                                 break
                             else:
                                 print("Incorrect password, please, try again!.")
+
                         else:
                             MenuManager.user_notfound_menu(self)
                             break
                     break
 
                 elif option == "2":
+
                     invalidOpt=0 
                     self.user_id = MenuManager.request_id(self)
+
                     while True:
+
                         response = requests.get(f"{url}users/{self.user_id}")
+
                         if response.status_code == 200:
+
                             user_data = response.json() 
                             self.user_id = user_data.get("user", {}).get("ID")
                             self.username = user_data.get("user", {}).get("username") 
                             self.password = user_data.get("user", {}).get("password") 
+
                             while True:
+
                                 in_password = MenuManager.request_pass(self)
+
                                 if (in_password=="0"):
                                     break   
+
                                 if MenuManager.check_password_hash(in_password, self.password):
                                     print("¡SUCCESSFUL REGISTRATION!")
                                     self.register_ok = 1
@@ -85,7 +99,9 @@ class MenuManager :
                                     break
                                 else:
                                     print("Incorrect password, please, try again.")
-                            break                
+
+                            break              
+
                         else:
                             MenuManager.user_notfound_menu(self)
                             self.register_ok = 1
@@ -98,7 +114,6 @@ class MenuManager :
                     username = input("Please enter your username: ")
 
                     while True:
-
                         password = input("Please enter your password: ")
 
                         if not password:
@@ -139,10 +154,13 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------   
 
     def show_app_menu_and_choose(self):
+
         while True:
+
             self.show_main_menu()
             option = input("Enter your choice: ").strip()
             print()
+
             if option in {"0", "1", "2", "3"}:
                 return int(option)
             else:
@@ -151,9 +169,11 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------   
 
     def request_id(self):
+
         while True:
             id= input("\nEnter your user ID:")
             print()
+
             if 0 < len(id) <= 5 and id.isdigit():
                 return id
             else:
@@ -162,9 +182,11 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------   
 
     def request_username(self):
+
         while True:
             username = input("Enter your username:")
             print()
+
             if 0 < len(username) <= 15 :
                 return username
             else:
@@ -173,10 +195,13 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------   
 
     def request_pass(self):
+
         while True:
             password = input("Please enter your password o 0 para salir: ")
+
             if (password=="0"):
-                return password    
+                return password  
+              
             else:
                 if not password:
                     print("Password cannot be empty. Please try again.")
@@ -188,8 +213,11 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------  
                  
     def choice_function(self, a: int,client):
+
         print(f"You selected option {a}.")
+
         if a == 1:
+
             print("Starting chat...")
             print()
             print("**********************************")
@@ -200,24 +228,28 @@ class MenuManager :
             sys.exit()
 
         elif a == 2:
+
             print("Showing users...")
             response = requests.get(f"{url}users/") 
             formatted_response = json.dumps(response.json(), indent=4)
             print(formatted_response)
 
         elif a == 3:
+
             print("Showing messages...")
             response = requests.get(f"{url}messages/") 
             formatted_response = json.dumps(response.json(), indent=4)
             print(formatted_response)
 
         elif a == 0:
+
             print("Exiting...")
             sys.exit()
 
 #--------------------------------------------------------------------------------------------------------------------
        
     def check_password_hash(provided_password, stored_hash):
+        
         if bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash.encode('utf-8')):
             return True
         else:

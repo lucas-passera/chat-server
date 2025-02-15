@@ -23,11 +23,14 @@ var mu sync.Mutex
 
 // Handler WebSocket
 func ChatHandler(c *gin.Context) {
+
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
 	if err != nil {
 		log.Println("Error upgrading connection:", err)
 		return
 	}
+
 	defer conn.Close()
 	mu.Lock()
 	connections[conn] = true
@@ -37,6 +40,7 @@ func ChatHandler(c *gin.Context) {
 
 	for {
 		_, msg, err := conn.ReadMessage()
+
 		if err != nil {
 			log.Println("Error reading message:", err)
 			break
@@ -45,6 +49,7 @@ func ChatHandler(c *gin.Context) {
 
 		var message entities.Message
 		err = json.Unmarshal(msg, &message)
+
 		if err != nil {
 			log.Println("Error parsing the message:", err)
 			continue
@@ -57,11 +62,13 @@ func ChatHandler(c *gin.Context) {
 		}
 
 		mu.Lock()
+
 		for c := range connections {
 			if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
 				log.Println("Error sending message", err)
 			}
 		}
+
 		mu.Unlock()
 	}
 

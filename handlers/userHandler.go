@@ -10,7 +10,9 @@ import (
 )
 
 func CreateUser(c *gin.Context) {
+
 	var user entities.User
+
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
@@ -25,6 +27,7 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetUser(c *gin.Context) {
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 
@@ -38,6 +41,7 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
@@ -53,7 +57,9 @@ func GetUserByUsername(c *gin.Context) {
 }
 
 func GetAllUsers(c *gin.Context) {
+
 	users, err := service.NewUserService().GetAllUsers()
+
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -63,7 +69,9 @@ func GetAllUsers(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
+
 	var user entities.User
+
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
@@ -78,6 +86,7 @@ func UpdateUser(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context) {
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 
@@ -95,6 +104,7 @@ func DeleteUser(c *gin.Context) {
 }
 
 func DeleteAllUsers(c *gin.Context) {
+
 	if err := service.NewUserService().DeleteAllUsers(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not reset users"})
 		return

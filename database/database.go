@@ -16,6 +16,7 @@ func ConnectDatabase() {
 	//TODO NO PASS HERE
 	dsn := "root:Lucaspassera19*@tcp(localhost:3306)/chatserver_db?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		log.Fatal("Connection with database(ERROR):", err)
 	}
@@ -25,6 +26,7 @@ func ConnectDatabase() {
 
 	//orm
 	err = DB.AutoMigrate(&entities.User{}, &entities.Message{})
+
 	if err != nil {
 		log.Fatal("Error migrating database:", err)
 	}
