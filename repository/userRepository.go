@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucas-passera/chat-server/database"
 	"github.com/lucas-passera/chat-server/entities"
+	"gorm.io/gorm"
 )
 
 func CreateUser(user *entities.User) error {
@@ -103,4 +104,16 @@ func CheckUserID(userID uint) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func CheckUsername(username string) (bool, error) {
+	var user entities.User
+	result := database.DB.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, result.Error // another error
+	}
+	return true, nil // Username already exists
 }

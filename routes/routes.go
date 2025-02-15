@@ -11,6 +11,7 @@ func SetupRoutes(router *gin.Engine) {
 	router.GET("/users", handlers.GetAllUsers)
 	router.GET("users/:id", handlers.GetUser)
 	router.GET("/users/username/:username", handlers.GetUserByUsername)
+	router.GET("/users/check-username/:username", handlers.CheckUsernameHandler)
 	router.PUT("/users", handlers.UpdateUser)
 	router.DELETE("/users/:id", handlers.DeleteUser)
 	router.DELETE("/users/delete-users", handlers.DeleteAllUsers)

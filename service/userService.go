@@ -16,6 +16,7 @@ func NewUserService() *UserService {
 }
 
 func (s *UserService) CreateUser(user *entities.User) error {
+
 	if user.Username == "" {
 		return errors.New("username is required")
 	}
@@ -28,13 +29,27 @@ func (s *UserService) CreateUser(user *entities.User) error {
 		return errors.New("password must be at most 15 characters long")
 	}
 
+	exists, err := repository.CheckUsername(user.Username)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("username already exists")
+	}
+
 	hashedPassword, err := hashPassword(user.Password)
 	if err != nil {
 		return errors.New("could not hash password")
 	}
 
 	user.Password = hashedPassword
-	return repository.CreateUser(user)
+	err = repository.CreateUser(user)
+	if err != nil {
+		return err
+	}
+
+	log.Println("UserService: User created successfully!")
+	return nil
 }
 
 func (s *UserService) GetUserByID(id uint) (*entities.User, error) {
@@ -75,4 +90,12 @@ func hashPassword(password string) (string, error) {
 
 func (s *UserService) DeleteAllUsers() error {
 	return repository.DeleteAllUsers()
+}
+
+func (s *UserService) CheckUsername(username string) (bool, error) {
+	exists, err := repository.CheckUsername(username)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }

@@ -111,7 +111,8 @@ class MenuManager :
                 elif option == "3":
 
                     invalidOpt=0 
-                    username = input("Please enter your username: ")
+                    username = self.get_valid_username()
+                    print(f"Your chosen username is: {username}")
 
                     while True:
                         password = input("Please enter your password: ")
@@ -338,3 +339,33 @@ class MenuManager :
         print("3-Create a new user.")
         print("0-Exit.\n")
         print("----------------------------------\n")
+
+#--------------------------------------------------------------------------------------------------------------------
+
+    def check_username(self, username):
+
+        url = f"http://localhost:8081/users/check-username/{username}"  # Cambia el puerto si es necesario
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                print("Username is available")
+                return True
+            elif response.status_code == 409:
+                print("Username already exists. Please choose another one.")
+                return False
+            else:
+                print(f"Error: {response.status_code}, Could not check username")
+                return False
+        except requests.exceptions.RequestException as e:
+            print(f"Error connecting to server: {e}")
+            return False
+        
+#--------------------------------------------------------------------------------------------------------------------
+
+    def get_valid_username(self):
+        while True:
+            username = input("Please enter your username: ")
+            if self.check_username(username):
+                return username
+            else:
+                print("Try again with a different username.")

@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lucas-passera/chat-server/entities"
@@ -17,8 +18,12 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
 	}
-
-	if err := service.NewUserService().CreateUser(&user); err != nil {
+	err := service.NewUserService().CreateUser(&user)
+	if err != nil {
+		if strings.Contains(err.Error(), "username already exists") {
+			c.JSON(http.StatusConflict, gin.H{"error": "username already exists"}) // 409 Conflict
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create the user"})
 		return
 	}
@@ -110,5 +115,21 @@ func DeleteAllUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "All users deleted, ID reset to 1"})
+	c.JSON(http.StatusOK, gin.H{"message": "all users deleted, id reset to 1"})
+}
+
+func CheckUsernameHandler(c *gin.Context) {
+	username := c.Param("username")
+	userService := service.UserService{}
+	exists, err := userService.CheckUsername(username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not check username"})
+		return
+	}
+	if exists {
+
+		c.JSON(http.StatusConflict, gin.H{"message": "username already exists"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "username is available"})
+	}
 }
