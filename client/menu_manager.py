@@ -69,7 +69,7 @@ class MenuManager :
                         response = requests.get(f"{url}users/{self.user_id}")
                         if response.status_code == 200:
                             user_data = response.json() 
-                            self.user_id = user_data.get("user", {}).get("id")
+                            self.user_id = user_data.get("user", {}).get("ID")
                             self.username = user_data.get("user", {}).get("username") 
                             self.password = user_data.get("user", {}).get("password") 
                             while True:
