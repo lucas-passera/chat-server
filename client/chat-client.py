@@ -40,7 +40,8 @@ class ChatClient:
 
                 in_password = MenuManager.request_pass(self)    #This method returns the password entered by the user
                 
-                if (in_password=="0"):                           #exit opc
+                if (in_password=="0"):  
+                    self.register_ok=0;                         #exit opc
                     break
 
                 if MenuManager.check_password_hash(in_password, self.password):    #Compare entered password with saved password (db)
@@ -57,8 +58,7 @@ class ChatClient:
                     print("Incorrect password, please, try again!.")
 
             else:  #USER NOT FOUND
-                self.menu_manager.user_notfound_menu()
-                
+                self.register_ok = self.menu_manager.user_notfound_menu()
                 break
 
 #-------------------------------------------------------------------------------------------------------------------- 

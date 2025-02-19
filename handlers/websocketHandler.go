@@ -38,6 +38,8 @@ func ChatHandler(c *gin.Context) {
 
 	log.Println("New client connected")
 
+	messageService := service.NewMessageService()
+
 	for {
 		_, msg, err := conn.ReadMessage()
 
@@ -55,7 +57,7 @@ func ChatHandler(c *gin.Context) {
 			continue
 		}
 
-		if err := service.NewMessageService().CreateMessage(&message); err != nil {
+		if err := messageService.CreateMessage(&message); err != nil {
 			log.Println("Error saving message:", err)
 		} else {
 			log.Printf("Message saved: (ID-%d) UserID-%d: %s (%s)", message.ID, message.UserID, message.Content, message.CreatedAt)

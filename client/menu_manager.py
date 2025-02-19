@@ -34,14 +34,12 @@ class MenuManager :
                     print("Exiting...")
                     return 0  
 
-                elif option =="1":
-
-                    invalidOpt=0 
+                elif option == "1":
+                    invalidOpt = 0 
                     self.username = MenuManager.request_username(self)
                     response = requests.get(f"{url}users/username/{self.username}")
 
                     while True:
-
                         if response.status_code == 200:
                             user_data = response.json()
 
@@ -50,22 +48,18 @@ class MenuManager :
                             self.password = user_data.get("user", {}).get("password") 
 
                             in_password = MenuManager.request_pass(self)
-                            if (in_password=="0"):
+                            if in_password == "0":
                                 sys.exit()
 
                             if MenuManager.check_password_hash(in_password, self.password):
                                 print("¡SUCCESSFUL REGISTRATION!")
                                 self.register_ok = 1
-                                print("----------------------------------")
-                                print(f"Hi, {self.username}!")
-                                break
+                                return self.register_ok  # ✅ Retornar el valor actualizado
                             else:
                                 print("Incorrect password, please, try again!.")
 
                         else:
-                            MenuManager.user_notfound_menu(self)
-                            break
-                    break
+                            return self.user_notfound_menu()
 
                 elif option == "2":
 
@@ -88,7 +82,9 @@ class MenuManager :
                                 in_password = MenuManager.request_pass(self)
 
                                 if (in_password=="0"):
-                                    break   
+                                    self.register_ok=0
+                                    return self.register_ok
+                                      
 
                                 if MenuManager.check_password_hash(in_password, self.password):
                                     print("¡SUCCESSFUL REGISTRATION!")
@@ -96,7 +92,7 @@ class MenuManager :
                                     print("----------------------------------")
                                     print(f"¡Hi, {self.username}!")
                                     option=1
-                                    break
+                                    return self.register_ok
                                 else:
                                     print("Incorrect password, please, try again.")
 
@@ -104,7 +100,6 @@ class MenuManager :
 
                         else:
                             MenuManager.user_notfound_menu(self)
-                            self.register_ok = 1
                             break
                     break 
 

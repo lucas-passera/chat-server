@@ -8,7 +8,8 @@ import (
 	"github.com/lucas-passera/chat-server/repository"
 )
 
-type MessageService struct{}
+type MessageService struct {
+}
 
 func NewMessageService() *MessageService {
 	return &MessageService{}
