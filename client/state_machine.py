@@ -71,8 +71,8 @@ class StateMachine:
                 self.status_update = {"status": "NOT-LOGIN-MENU", "text": "Opción no válida. Intente de nuevo."}
 
         elif status == "CREATE_USER":
-            if self.client.check_username(input_user):
-                self.username=input_user
+            if self.client.menu_manager.check_username(input_user):
+                self.client.username=input_user
                 self.status_update = {"status": "CHECK_PASS_USER", "text": "Username available, enter the password:"}
             else:
                 self.status_update = {"status": "CREATE_USER", "text": "Try again with a different username. Enter the username:"}
@@ -85,19 +85,27 @@ class StateMachine:
             elif len(input_user) > 15:
                 self.status_update = {"status": "CHECK_PASS_USER", "text": "Password is too long. Maximum length is 15 characters. Please try again:"}
             else:
-                self.password=input_user
+                self.client.password=input_user
                 self.status_update = {"status": "SAVE_USER", "text": "Correct password, do you want to save it ?(y/n)"}
                 
 
         elif status == "SAVE_USER":
             if input_user=="y":
-                response = requests.post(url + "users/", json=self.client.user_data)                
+                self.client.user_data = {
+                    "username": self.client.username,
+                    "password": self.client.password
+                }
+                
+                print("Enviando los siguientes datos para crear usuario:", json.dumps(self.client.user_data, indent=4))
+                response = requests.post(url + "users/", json=self.client.user_data)   
+                print(f"Respuesta del servidor: {response.status_code} - {response.text}")  # Depuración             
                 if response.status_code == 200: 
                     response_data = response.json()  
-                    user_id = response_data["user"].get("ID")  
-                    self.status_update = {"status": "MAIN", "text": f"User created successfully with ID: {user_id}, Continue? (Y/N)"}
+                    self.client.user_id = response_data["user"].get("ID")  
+                    self.status_update = {"status": "MAIN", "text": f"User created successfully with ID: {self.client.user_id}, Continue? (Y/N)"}
 
                 else:
+                    print("error guardando")
                     self.status_update = {"status": "EXIT", "text": f"ERROR GUARDANDO, SALIENDO POR SEGURIDAD.."}
 
         elif status == "MAIN":
