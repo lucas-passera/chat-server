@@ -1,4 +1,6 @@
 import json
+import sys
+import bcrypt
 import requests
 
 url = "http://localhost:8081/"
@@ -7,7 +9,6 @@ class StateMachine:
     
     def __init__(self, client):
         self.client = client
-        self.menu_manager = client.menu_manager
         self.status_update = {"status": "INIT", "text": "Ingrese un usuario:"}
         print("Welcome to chat server!")
 
@@ -16,14 +17,24 @@ class StateMachine:
             print(self.status_update["text"])  
             input_user = input("> ").strip()
             self.processInput(input_user)
-
+        sys.exit()
+        
     def processInput(self, input_user):
         status = self.status_update["status"]
-
+        
         if status == "INIT":
             response = requests.get(f"{url}users/username/{input_user}")
+            print("Response Status:", response.status_code)
             if response.status_code == 200:
-                self.client.user_data = response.json()
+                self.client.user_data = response.json()["user"]
+                self.client.user_data = {  # Modificamos directamente la propiedad de ChatClient
+                    "user_id": self.client.user_data.get("ID"),
+                    "username": self.client.user_data.get("username"),
+                    "password": self.client.user_data.get("password")
+                }
+                self.client.user_id = self.client.user_data.get("ID")  # Sincronizamos
+                self.client.username = self.client.user_data.get("username")
+                
                 self.status_update = {"status": "LOGIN_REQUEST_PASS", "text": "Ingrese su contraseña:"}
             else:
                 self.status_update = {"status": "NOT-LOGIN-MENU", "text": "Usuario no encontrado. Seguir intentando? (Y/N)"}
@@ -31,9 +42,9 @@ class StateMachine:
         elif status == "LOGIN_REQUEST_PASS":
             if input_user == "0":
                 self.status_update = {"status": "EXIT", "text": "Saliendo..."}
-            elif self.menu_manager.check_password_hash(input_user, self.client.user_data["password"]):
-                print("")
-                self.status_update = {"status": "MAIN", "text": "¡Inicio de sesión exitoso!"}
+            elif bcrypt.checkpw(input_user.encode(), self.client.user_data["password"].encode()):
+                print("Inicio de sesión exitoso")
+                self.status_update = {"status": "MAIN", "text": "¡Inicio de sesión exitoso! Presione alguna tecla para continuar. "}
             else:
                 print("Contraseña incorrecta. Inténtelo de nuevo.")
         
@@ -51,7 +62,7 @@ class StateMachine:
             if input_user == "1":
                 self.status_update = {"status": "INIT", "text": "Ingrese un usuario:"}
             elif input_user == "2":
-                self.status_update = {"status": "ENTER_WITH_ID", "text": "Ingrese ID:"}
+                self.status_update = {"status": "ENTER_WITH_ID", "text": "Elegio ingresar con ID, desea continuar? (Y/N):"}
             elif input_user == "3":
                 self.status_update = {"status": "CREATE_USER", "text": "Ingrese nuevo usuario:"}
             elif input_user == "0":
@@ -80,8 +91,7 @@ class StateMachine:
 
         elif status == "SAVE_USER":
             if input_user=="y":
-                data = {"username": self.username, "password": self.password}
-                response = requests.post(url + "users/", json=data)                
+                response = requests.post(url + "users/", json=self.client.user_data)                
                 if response.status_code == 200: 
                     response_data = response.json()  
                     user_id = response_data["user"].get("ID")  
@@ -102,17 +112,16 @@ class StateMachine:
             self.status_update = {"status": "SELECT_OPC-MAIN_MENU", "text": "Seleccione una opción:"} 
 
         elif status == "SELECT_OPC-MAIN_MENU":
-            if input_user == 1:
+            if input_user == "1":
                 print("Starting chat...")
                 print()
                 print("**********************************")
                 print("Use ./menu to return to the menu.")
                 print("**********************************")
                 print()
-                self.client.start_chat()
-                self.status_update = {"status": "MAIN", "text": "Finalizando el chat..."}
+                self.status_update = {"status": "START_CHAT", "text": ""}
 
-            elif input_user == 2:
+            elif input_user == "2":
 
                 print("Showing users...")
                 print()
@@ -120,8 +129,9 @@ class StateMachine:
                 formatted_response = json.dumps(response.json(), indent=4)
                 print(formatted_response)
                 print()
+                self.status_update = {"status": "MAIN", "text": "Volviendo al menu... presione alguna tecla para continuar"}
 
-            elif input_user == 3:
+            elif input_user == "3":
 
                 print("Showing messages...")
                 print()
@@ -129,45 +139,27 @@ class StateMachine:
                 formatted_response = json.dumps(response.json(), indent=4)
                 print(formatted_response)
                 print()
+                self.status_update = {"status": "MAIN", "text": "Volviendo al menu... presione alguna tecla para continuar"}
 
-            elif input_user == 0:
+            elif input_user == "0":
                 print("Exiting...")
                 print()
-                self.status_update = {"status": "EXIT", "text": "Seleccione una opción:"} 
+                self.status_update = {"status": "EXIT", "text": "saliendo."}
 
-        #elif status == "ENTER_WITH_ID":
-        #    user_id = self.menu_manager.request_id()
-        #    response = requests.get(f"{url}users/{self.user_id}")
-        #    if response.status_code == 200:
-        #        user_data = response.json() 
-        #        self.user_id = user_data.get("user", {}).get("ID")
-        #        self.username = user_data.get("user", {}).get("username") 
-        #        self.password = user_data.get("user", {}).get("password") 
-        #        self.status_update = {"status": "USER_FOUND_WITH_ID", "text": "Usuario encontrado, ingrese su contraseña:"}
-#
-        #        
-        #    
-#
-        #            
-        #     
-#
-        #    else:
-        #        self.status_update = {"status": "ENTER_WITH_ID", "text": "Eligio ingresar con ID."}
-        #        
-        #elif status == "USER_FOUND_WITH_ID":  
-        #    in_password = MenuManager.request_pass(self)
-#
-        #    if (in_password=="0"):
-        #        self.register_ok=0
-        #        return self.register_ok
-        #            
-#
-        #    if MenuManager.check_password_hash(in_password, self.password):
-        #        print("¡SUCCESSFUL REGISTRATION!")
-        #        self.register_ok = 1
-        #        print("----------------------------------")
-        #        print(f"¡Hi, {self.username}!")
-        #        option=1
-        #        return self.register_ok
-        #    else:
-        #        print("Incorrect password, please, try again.")
+        elif status == "ENTER_WITH_ID":
+            if(input_user=="y"):
+                self.client.user_id = self.client.menu_manager.request_id()
+                response = requests.get(f"{url}users/{self.client.user_id}")
+                if response.status_code == 200:
+                    print("Response Status:", response.status_code)
+                    print("Response JSON:", response.json())
+                    self.client.user_data = response.json()["user"]
+                    self.status_update = {"status": "LOGIN_REQUEST_PASS", "text": "Usuario encontrado, ingrese su contraseña:"}
+                else:
+                    self.status_update = {"status": "NOT-LOGIN-MENU", "text": "Usuario no encontrado, presione (Y) para volver al menu u otra tecla para salir."}
+            else:
+                self.status_update = {"status": "NOT-LOGIN-MENU", "text": "Cancelando... presione (Y) para volver al menu u otra tecla para salir."}
+     
+        elif status=="START_CHAT":      
+            self.client.start_chat()
+            self.status_update = {"status": "MAIN", "text": "Volviendo al menú. Presione alguna tecla para continuar."}

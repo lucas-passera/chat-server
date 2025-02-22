@@ -13,156 +13,6 @@ class MenuManager :
         self.client = client
     
 #--------------------------------------------------------------------------------------------------------------------   
-    
-    def user_notfound_menu(self): 
-
-        invalidOpt=0 #
-        option = 2  #value for enter 
-
-        while True:
-
-            if(option==2):
-
-                if(invalidOpt==0):
-                    print("ERROR: USER NOT FOUND.\n")
-
-                self.show_menu_user_not_found()
-                option = input("Choose an option: ").strip()
-                print()
-
-                if option == "0":
-                    print("Exiting...")
-                    return 0  
-
-                elif option == "1":
-                    invalidOpt = 0 
-                    self.username = MenuManager.request_username(self)
-                    response = requests.get(f"{url}users/username/{self.username}")
-
-                    while True:
-                        if response.status_code == 200:
-                            user_data = response.json()
-
-                            self.user_id = user_data.get("user", {}).get("ID") 
-                            self.username = user_data.get("user", {}).get("username") 
-                            self.password = user_data.get("user", {}).get("password") 
-
-                            in_password = MenuManager.request_pass(self)
-                            if in_password == "0":
-                                sys.exit()
-
-                            if MenuManager.check_password_hash(in_password, self.password):
-                                print("¡SUCCESSFUL REGISTRATION!")
-                                self.register_ok = 1
-                                return self.register_ok  # ✅ Retornar el valor actualizado
-                            else:
-                                print("Incorrect password, please, try again!.")
-
-                        else:
-                            return self.user_notfound_menu()
-
-                elif option == "2":
-
-                    invalidOpt=0 
-                    self.user_id = MenuManager.request_id(self)
-
-                    while True:
-
-                        response = requests.get(f"{url}users/{self.user_id}")
-
-                        if response.status_code == 200:
-
-                            user_data = response.json() 
-                            self.user_id = user_data.get("user", {}).get("ID")
-                            self.username = user_data.get("user", {}).get("username") 
-                            self.password = user_data.get("user", {}).get("password") 
-
-                            while True:
-
-                                in_password = MenuManager.request_pass(self)
-
-                                if (in_password=="0"):
-                                    self.register_ok=0
-                                    return self.register_ok
-                                      
-
-                                if MenuManager.check_password_hash(in_password, self.password):
-                                    print("¡SUCCESSFUL REGISTRATION!")
-                                    self.register_ok = 1
-                                    print("----------------------------------")
-                                    print(f"¡Hi, {self.username}!")
-                                    option=1
-                                    return self.register_ok
-                                else:
-                                    print("Incorrect password, please, try again.")
-
-                            break              
-
-                        else:
-                            MenuManager.user_notfound_menu(self)
-                            break
-                    break 
-
-                elif option == "3":
-
-                    invalidOpt=0 
-                    username = self.get_valid_username()
-                    print(f"Your chosen username is: {username}")
-
-                    while True:
-                        password = input("Please enter your password: ")
-
-                        if not password:
-                            print("Password cannot be empty. Please try again.")
-                        elif password=="0":
-                            print("Password cannot be 0")
-                        elif len(password) > 15:
-                            print("Password is too long. Maximum length is 15 characters.")
-                        else:
-                            data = {"username": username, "password": password}
-                            break 
-
-                    response = requests.post(url + "users/", json=data)                
-
-                    if response.status_code == 200: 
-
-                        response_data = response.json()  
-                        user_id = response_data["user"].get("ID")  
-                        print(f"User created successfully with ID: {user_id}")
-                        self.register_ok=1
-                        print()
-                        break
-
-                    else:
-
-                        print(f"Error: {response.status_code} - {response.text}")
-                        response_data=response.json() 
-                        user_id=response_data.get("id") 
-                        self.register_ok=0
-                        sys.exit()
-                    return user_id, self.register_ok
-                
-                else:
-                    invalidOpt=1
-                    option=2
-                    print("Invalid option.\n") 
-
-#--------------------------------------------------------------------------------------------------------------------   
-
-    def show_app_menu_and_choose(self):
-
-        while True:
-
-            self.show_main_menu()
-            option = input("Enter your choice: ").strip()
-            print()
-
-            if option in {"0", "1", "2", "3"}:
-                return int(option)
-            else:
-                print("Invalid option. Please enter 0, 1, 2, or 3.\n")
-
-#--------------------------------------------------------------------------------------------------------------------   
 
     def request_id(self):
 
@@ -205,43 +55,7 @@ class MenuManager :
                     print("Password is too long. Maximum length is 15 characters.")
                 else:
                     return password
-                
-#--------------------------------------------------------------------------------------------------------------------  
-                 
-    def choice_function(self, a: int,client):
-
-        print(f"You selected option {a}.")
-
-        if a == 1:
-
-            print("Starting chat...")
-            print()
-            print("**********************************")
-            print("Use ./menu to return to the menu.")
-            print("**********************************")
-            print()
-            client.start_chat()
-            sys.exit()
-
-        elif a == 2:
-
-            print("Showing users...")
-            response = requests.get(f"{url}users/") 
-            formatted_response = json.dumps(response.json(), indent=4)
-            print(formatted_response)
-
-        elif a == 3:
-
-            print("Showing messages...")
-            response = requests.get(f"{url}messages/") 
-            formatted_response = json.dumps(response.json(), indent=4)
-            print(formatted_response)
-
-        elif a == 0:
-
-            print("Exiting...")
-            sys.exit()
-
+        
 #--------------------------------------------------------------------------------------------------------------------
        
     def check_password_hash(provided_password, stored_hash):
@@ -251,45 +65,6 @@ class MenuManager :
         else:
             return False
         
-#-------------------------------------------------------------------------------------------------------------------- 
-      
-    def handle_chat_menu(self, url, ws):
-
-        while True:
-
-            selected_option = self.show_app_menu_and_choose()
-            print(f"You selected option {selected_option}.")
-            print()
-
-            if selected_option == 1:
-
-                self.show_starting_chat()
-                break
-
-            elif selected_option == 2:
-
-                print("Showing users...")
-                print()
-                response = requests.get(f"{url}users/") 
-                formatted_response = json.dumps(response.json(), indent=4)
-                print(formatted_response)
-                print()
-
-            elif selected_option == 3:
-
-                print("Showing messages...")
-                print()
-                response = requests.get(f"{url}messages/") 
-                formatted_response = json.dumps(response.json(), indent=4)
-                print(formatted_response)
-                print()
-
-            elif selected_option == 0:
-
-                print("Exiting...")
-                print()
-                ws.close() 
-                return             
 
 #--------------------------------------------------------------------------------------------------------------------   
 
@@ -316,7 +91,7 @@ class MenuManager :
 
     def show_main_menu(self):
 
-        print("----------------------------------\n")
+        print("\n----------------------------------\n")
         print("CHOOSE AN OPTION:")
         print()
         print("1-Chat.")
@@ -328,12 +103,12 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------
 
     def show_menu_user_not_found(self):
-
+        print("\n----------------------------------\n")
         print("1-Try again.")
         print("2-Enter with ID.")
         print("3-Create a new user.")
-        print("0-Exit.\n")
-        print("----------------------------------\n")
+        print("0-Exit.")
+        print("\n----------------------------------\n")
 
 #--------------------------------------------------------------------------------------------------------------------
 
