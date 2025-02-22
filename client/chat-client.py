@@ -5,6 +5,8 @@ import requests
 import websocket
 import threading
 from datetime import datetime
+
+from client.state_machine import StateMachine
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from client.menu_manager import MenuManager
 import time
@@ -21,45 +23,46 @@ class ChatClient:
 
     def __init__(self):
         
+        
         self.menu_manager = MenuManager(self)
         self.menu_manager.welcome()
-
-        self.register_ok = 0  #This is to enter the main menu, if you logged in correctly.
-        self.user_id = 0 
-        self.username = MenuManager.request_username(self)
         
-        while True:
-            response = requests.get(f"{url}users/username/{self.username}") #get by username
-
-            if response.status_code == 200:
-                user_data = response.json() 
-
-                self.user_id = user_data.get("user", {}).get("ID")
-                self.username = user_data.get("user", {}).get("username") 
-                self.password = user_data.get("user", {}).get("password")
-
-                in_password = MenuManager.request_pass(self)    #This method returns the password entered by the user
-                
-                if (in_password=="0"):  
-                    self.register_ok=0;                         #exit opc
-                    break
-
-                if MenuManager.check_password_hash(in_password, self.password):    #Compare entered password with saved password (db)
-
-                    print()
-                    print("¡SUCCESSFUL REGISTRATION!")
-                    print()
-                    self.register_ok = 1     
-                    print("----------------------------------")
-                    print(f"Hi, {self.username}!")
-                    break
-
-                else:
-                    print("Incorrect password, please, try again!.")
-
-            else:  #USER NOT FOUND
-                self.register_ok = self.menu_manager.user_notfound_menu()
-                break
+        #self.register_ok = 0  #This is to enter the main menu, if you logged in correctly.
+        #self.user_id = 0 
+        #self.username = MenuManager.request_username(self)
+        
+#    while True:
+#        response = requests.get(f"{url}users/username/{self.username}") #get by username
+#
+#        if response.status_code == 200:
+#            self.user_data = response.json() 
+#
+#            self.user_id = self.user_data.get("user", {}).get("ID")
+#            self.username = self.user_data.get("user", {}).get("username") 
+#            self.password = self.user_dataself.user_data.get("user", {}).get("password")
+#
+#            in_password = MenuManager.request_pass(self)    #This method returns the password entered by the user
+#            
+#            if (in_password=="0"):  
+#                self.register_ok=0;                         #exit opc
+#                break
+#
+#            if MenuManager.check_password_hash(in_password, self.password):    #Compare entered password with saved password (db)
+#
+#                print()
+#                print("¡SUCCESSFUL REGISTRATION!")
+#                print()
+#                self.register_ok = 1     
+#                print("----------------------------------")
+#                print(f"Hi, {self.username}!")
+#                break
+#
+#            else:
+#                print("Incorrect password, please, try again!.")
+#
+#        else:  #USER NOT FOUND
+#            self.register_ok = self.menu_manager.user_notfound_menu()
+#            break
 
 #-------------------------------------------------------------------------------------------------------------------- 
                
@@ -140,11 +143,13 @@ class ChatClient:
 if __name__ == "__main__":
 
     client = ChatClient()  # Se crea la instancia de ChatClient
+    state_machine = StateMachine(client)
+    state_machine.run()
 
-    if client.register_ok != 0:  # Verifica si el usuario se registró correctamente
-        while True:
-            selected_option = client.menu_manager.show_app_menu_and_choose()  # Accede al método desde client.menu_manager
-            client.menu_manager.choice_function(selected_option, client)
+    #if client.register_ok != 0:  # Verifica si el usuario se registró correctamente
+     #   while True:
+      #      selected_option = client.menu_manager.show_app_menu_and_choose()  # Accede al método desde client.menu_manager
+#            client.menu_manager.choice_function(selected_option, client)
 
 #--------------------------------------------------------------------------------------------------------------------             
     
