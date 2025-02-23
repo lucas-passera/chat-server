@@ -31,11 +31,11 @@ class ChatClient:
     def close_connection(self):
         if self.ws:
             self.ws.close()  # Cierra la conexión WebSocket si está abierta
-            print(Fore.RED + "Connection has been closed.\n")
-            self.ws = None 
+            self.ws = None #reinicia para que no busque en la que estaba, la cual cerro 
+
 #-------------------------------------------------------------------------------------------------------------------- 
                
-    def on_message(self, ws, message):
+    def on_message(self, ws, message):   #client receives msg
 
         try:
             msg_data = json.loads(message)
@@ -118,5 +118,6 @@ if __name__ == "__main__":
     client = ChatClient()  
     state_machine = StateMachine(client)
     state_machine.run()
+    
 #--------------------------------------------------------------------------------------------------------------------             
     

@@ -1,6 +1,7 @@
 import json
 import sys
 import bcrypt
+from colorama import Fore
 import requests
 
 url = "http://localhost:8081/"
@@ -11,7 +12,18 @@ class MenuManager :
 
     def __init__(self, client):
         self.client = client
-    
+        
+#--------------------------------------------------------------------------------------------------------------------   
+
+    def welcome(self):
+        
+        print()
+        print(Fore.YELLOW + "----------------------------------")
+        print(Fore.WHITE + "     ¡WELCOME TO CHAT-SERVER!     ")
+        print(Fore.YELLOW + "----------------------------------")
+        print()
+      
+
 #--------------------------------------------------------------------------------------------------------------------   
 
     def request_id(self):
@@ -64,17 +76,6 @@ class MenuManager :
             return True
         else:
             return False
-        
-
-#--------------------------------------------------------------------------------------------------------------------   
-
-    def welcome(self):
-        
-        print()
-        print("----------------------------------")
-        print("---- ¡Welcome to chat-server! ----")
-        print("----------------------------------")
-        print()
 
 #--------------------------------------------------------------------------------------------------------------------  
 
