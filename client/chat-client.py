@@ -11,8 +11,8 @@ from colorama import Back, Fore, Style
 
 colorama.init(autoreset=True)
 message_received_event = threading.Event()
-url = "http://localhost:8081/"
-
+#url = "http://localhost:8081/"
+url="http://184.72.171.214:8081/"
 class ChatClient:
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class ChatClient:
         if self.ws:  #first, close some open connection
             self.close_connection()
 
-        self.ws = websocket.WebSocketApp("ws://localhost:8081/chat", 
+        self.ws = websocket.WebSocketApp("ws://184.72.171.214:8081/chat", 
                                         on_message=self.on_message,
                                         on_error=self.on_error,
                                         on_close=self.on_close)

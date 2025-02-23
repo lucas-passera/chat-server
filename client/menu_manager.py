@@ -4,7 +4,7 @@ import bcrypt
 from colorama import Fore
 import requests
 
-url = "http://localhost:8081/"
+url="http://184.72.171.214:8081/"
 
 class MenuManager :
 
@@ -57,7 +57,7 @@ class MenuManager :
         
 #--------------------------------------------------------------------------------------------------------------------
        
-    def check_password_hash(provided_password, stored_hash):
+    def check_password_hash(self, provided_password, stored_hash):
         
         if bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash.encode('utf-8')):
             return True
@@ -68,7 +68,8 @@ class MenuManager :
 
     def check_username(self, username):
 
-        url = f"http://localhost:8081/users/check-username/{username}"  # Cambia el puerto si es necesario
+        #url = f"http://localhost:8081/users/check-username/{username}"  LOCAL
+        url = f"http://184.72.171.214:8081/users/check-username/{username}"
         try:
             response = requests.get(url)
             if response.status_code == 200:

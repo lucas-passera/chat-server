@@ -4,7 +4,7 @@ import bcrypt
 from colorama import Fore
 import requests
 
-url = "http://localhost:8081/"
+url="http://184.72.171.214:8081/"
 
 class StateMachine:
 
@@ -85,7 +85,7 @@ class StateMachine:
             response = requests.get(f"{url}users/username/{input_user}")
 
             if response.status_code == 200:
-                
+
                 print("Response Status:", Fore.LIGHTGREEN_EX + str(response.status_code)+" OK\n" + Fore.RESET)
 
                 user_data = response.json()["user"]    # recibo el json del server
@@ -138,7 +138,7 @@ class StateMachine:
                 print("Exiting...")
                 self.status_update = {"status": "EXIT", "text": "Saliendo..."}
 
-            elif self.client.menu_manager.checkpasswordhash(input_user.encode(), self.client.user_data["password"].encode()):
+            elif self.client.menu_manager.check_password_hash(input_user, self.client.user_data.get("password")):
 
                 self.status_update = {
                         "status": "MAIN",
