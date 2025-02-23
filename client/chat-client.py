@@ -41,7 +41,7 @@ class ChatClient:
             msg_data = json.loads(message)
             content = msg_data['content']  #extract message
             current_time = datetime.now().strftime("%H:%M:%S")
-            print(Fore.GREEN + f"({current_time}) {self.username}: {content}")
+            print(f"({current_time}) {Fore.LIGHTGREEN_EX}{self.username}{Fore.RESET}: {content}")
             
         except json.JSONDecodeError:
             print(Fore.RED + f"Error parsing the message: {message}")
@@ -58,7 +58,8 @@ class ChatClient:
 #--------------------------------------------------------------------------------------------------------------------  
              
     def on_close(self, ws, close_status_code, close_msg):
-        print(Fore.RED + "Connection has been closed.\n")
+        print()
+        print(Fore.LIGHTRED_EX + "Connection has been closed.\n")
 
 #--------------------------------------------------------------------------------------------------------------------   
     

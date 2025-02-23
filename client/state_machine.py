@@ -8,13 +8,14 @@ url = "http://localhost:8081/"
 
 class StateMachine:
 
+
 #--------------------------------------------------------------------------------------------------------------------    
 
     def __init__(self, client):
         self.client = client
         self.status_update = {
             "status": "NOT-LOGIN-MENU",
-            "text": f"Ingrese ({Fore.YELLOW + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.YELLOW + 'CUALQUIER CARACTER' + Fore.RESET}  para salir:"
+            "text": f"Ingrese ({Fore.LIGHTGREEN_EX + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.LIGHTGREEN_EX + 'CUALQUIER CARACTER' + Fore.RESET}  para salir:"
         }
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -25,6 +26,7 @@ class StateMachine:
             input_user = input("> ").strip()
             print()
             self.processInput(input_user)
+        print(Fore.LIGHTGREEN_EX+"Exiting..."+Fore.RESET)
         sys.exit()
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -35,14 +37,14 @@ class StateMachine:
         if status == "NOT-LOGIN-MENU":
             if input_user=="y" or input_user == "Y":
                 self.client.menu_manager.show_menu_user_not_login()
-                self.status_update = {"status": "SELECT_OPC-NOT_LOGIN_MENU", "text": f"Select an {Fore.LIGHTMAGENTA_EX}option{Style.RESET_ALL}:"}
+                self.status_update = {"status": "SELECT_OPC-NOT_LOGIN_MENU", "text": f"Select an {Fore.LIGHTGREEN_EX}option{Style.RESET_ALL}:"}
             else:
-                print("Exiting...")
                 self.status_update = {"status": "EXIT", "text": "Exiting..."}  
 
 #--------Status Divisor--------
 
         elif status == "SELECT_OPC-NOT_LOGIN_MENU":
+
             if input_user == "1":
                 self.status_update = {"status": "ENTER_WITH_USERNAME", "text": "Enter your username:"}
             elif input_user == "2":
@@ -52,7 +54,7 @@ class StateMachine:
             elif input_user == "0":
                 self.status_update = {"status": "EXIT", "text": "Saliendo del sistema..."}
             else:
-                print (f"{Fore.LIGHTRED_EX + 'OPCIÓN INCORRECTA' + Fore.RESET}. Intente nuevamente.\n")
+                print (f"{Fore.LIGHTRED_EX + 'OPCIÓN INCORRECTA' + Fore.RESET}. Try again.\n")
                    
 #--------Status Divisor--------
 
@@ -61,7 +63,7 @@ class StateMachine:
             response = requests.get(f"{url}users/username/{input_user}")
 
             if response.status_code == 200:
-                print("Response Status:", Fore.GREEN + str(response.status_code)+" OK" + Fore.RESET)
+                print("Response Status:", Fore.LIGHTGREEN_EX + str(response.status_code)+" OK" + Fore.RESET)
 
                 user_data = response.json()["user"]    # recibo el json del server
                 self.client.user_data = {  #guardo solo lo que me interesa aca
@@ -73,38 +75,43 @@ class StateMachine:
                 self.client.username = self.client.user_data.get("username")
                 
                 self.status_update = {"status": "LOGIN_REQUEST_PASS", "text": "\nEnter your password:"}
+
             else:
+
                 if response.status_code == 404:
                     print("Response Status:", Fore.LIGHTRED_EX + str(response.status_code) + Fore.RESET)
                     self.status_update = {
                         "status": "NOT-LOGIN-MENU",
-                        "text": f"{Fore.LIGHTRED_EX + 'USUARIO NO ENCONTRADO.' + Fore.RESET} \n\nIngrese ({Fore.YELLOW + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.YELLOW + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
-                }  
+                        "text": f"{Fore.LIGHTRED_EX + 'USER NOT FOUND.' + Fore.RESET} \n\nIngrese ({Fore.LIGHTGREEN_EX + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.LIGHTGREEN_EX + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
+                } 
+                     
                 elif response.status_code == 400: 
                     print("Response Status:", Fore.LIGHTRED_EX + str(response.status_code) +" BAD REQUEST "+ Fore.RESET)
                     self.status_update = {
                         "status": "NOT-LOGIN-MENU",
-                        "text": f"\nIngrese ({Fore.YELLOW + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.YELLOW + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
+                        "text": f"\nIngrese ({Fore.LIGHTGREEN_EX + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.LIGHTGREEN_EX + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
                 }
+                    
                 else:
                     print("Response Status:", Fore.LIGHTRED_EX + str(response.status_code) + Fore.RESET)
                     self.status_update = {
                         "status": "NOT-LOGIN-MENU",
-                        "text": f"\nIngrese ({Fore.YELLOW + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.YELLOW + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
+                        "text": f"\nIngrese ({Fore.LIGHTGREEN_EX + 'Y' + Fore.RESET}) para acceder al menú del programa o {Fore.LIGHTGREEN_EX + 'CUALQUIER TECLA' + Fore.RESET}  para salir:"
                     }
 
 #--------Status Divisor--------
 
         elif status == "LOGIN_REQUEST_PASS":
             if input_user == "0":
+                print("Exiting...")
                 self.status_update = {"status": "EXIT", "text": "Saliendo..."}
             elif bcrypt.checkpw(input_user.encode(), self.client.user_data["password"].encode()):
-                print("Inicio de sesión exitoso")
-                self.status_update = {"status": "MAIN", "text": "¡Inicio de sesión exitoso! Presione alguna tecla para continuar. "}
+                self.status_update = {
+                        "status": "MAIN",
+                        "text": f"{Fore.LIGHTGREEN_EX + '¡Registration completed successfully!' + Fore.RESET}. \n\nEnter any char to continue:"
+                    }
             else:
-                print("Contraseña incorrecta. Inténtelo de nuevo.")
-
-
+                print(Fore.LIGHTRED_EX + "Incorrect password." + Fore.RESET + "\nPlease try again or enter ("+Fore.LIGHTGREEN_EX+ "0" +Fore.RESET+") to exit.")
 
 #--------Status Divisor--------
 
@@ -152,27 +159,16 @@ class StateMachine:
 #--------Status Divisor--------
 
         elif status == "MAIN":
-            print("----------------------------------\n")
-            print("1-Chat.")
-            print("2-Users.")
-            print("3-Messages.")
-            print("0-Exit.")
-            print("\n----------------------------------\n")
-            self.status_update = {"status": "SELECT_OPC-MAIN_MENU", "text": "Seleccione una opción:"} 
-
+            self.client.menu_manager.show_main_menu()
+            self.status_update = {"status": "SELECT_OPC-MAIN_MENU", "text": f"Select an {Fore.LIGHTGREEN_EX}option{Fore.RESET}:"}
+        
 #--------Status Divisor--------
 
         elif status == "SELECT_OPC-MAIN_MENU":
-            if input_user == "1":
-                print("Starting chat...")
-                print()
-                print("**********************************")
-                print("Use ./menu to return to the menu.")
-                print("**********************************")
-                print()
-                self.status_update = {"status": "START_CHAT", "text": ""}
 
-#--------Status Divisor--------
+            if input_user == "1":
+                self.client.menu_manager.show_start_chat()
+                self.status_update = {"status": "START_CHAT", "text": "Enter any char to init conversation:"}
 
             elif input_user == "2":
 
@@ -182,9 +178,7 @@ class StateMachine:
                 formatted_response = json.dumps(response.json(), indent=4)
                 print(formatted_response)
                 print()
-                self.status_update = {"status": "MAIN", "text": "Volviendo al menu... presione alguna tecla para continuar"}
-
-#--------Status Divisor--------
+                self.status_update = {"status": "MAIN", "text": f"{Fore.LIGHTGREEN_EX}Enter any char to continue:{Fore.RESET}"}
 
             elif input_user == "3":
 
@@ -194,13 +188,10 @@ class StateMachine:
                 formatted_response = json.dumps(response.json(), indent=4)
                 print(formatted_response)
                 print()
-                self.status_update = {"status": "MAIN", "text": "Volviendo al menu... presione alguna tecla para continuar"}
-
-#--------Status Divisor--------
+                self.status_update = {"status": "MAIN", "text": f"{Fore.LIGHTGREEN_EX}Enter any char to continue:{Fore.RESET}"}
 
             elif input_user == "0":
-                print("Exiting...")
-                print()
+                
                 self.status_update = {"status": "EXIT", "text": "saliendo."}
 
 #--------Status Divisor--------
@@ -223,4 +214,5 @@ class StateMachine:
      
         elif status=="START_CHAT":      
             self.client.start_chat()
-            self.status_update = {"status": "MAIN", "text": "Volviendo al menú. Presione alguna tecla para continuar."}
+            self.status_update = {"status": "MAIN", "text": ""}
+            self.status_update = {"status": "MAIN", "text": f"{Fore.LIGHTGREEN_EX}Enter any char to continue:{Fore.RESET}"}

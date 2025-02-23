@@ -18,12 +18,42 @@ class MenuManager :
     def welcome(self):
         
         print()
-        print(Fore.YELLOW + "-------------------------------------------------------------------------------")
-        print(Fore.WHITE + "                           ¡WELCOME TO CHAT-SERVER!     ")
-        print(Fore.YELLOW + "-------------------------------------------------------------------------------")
+        print(Fore.WHITE + "-------------------------------------------------------------------------------")
+        print(Fore.LIGHTGREEN_EX + "                           ¡WELCOME TO CHAT-SERVER!     ")
+        print(Fore.WHITE + "-------------------------------------------------------------------------------")
         print()
+#--------------------------------------------------------------------------------------------------------------------
+
+    def show_menu_user_not_login(self):
+        print("-------------------------------------------------------------------------------\n")
+        print(f"{Fore.LIGHTGREEN_EX}1{Fore.RESET}-Enter with Username.")
+        print(f"{Fore.LIGHTGREEN_EX}2{Fore.RESET}-Enter with ID.")
+        print(f"{Fore.LIGHTGREEN_EX}3{Fore.RESET}-Create a new user.")
+        print(f"{Fore.LIGHTGREEN_EX}0{Fore.RESET}-Exit.")
+        print("\n-------------------------------------------------------------------------------\n")
+
+#-------------------------------------------------------------------------------------------------------------------- 
+
+    def show_main_menu(self):
+
+        print(Fore.WHITE + "-------------------------------------------------------------------------------\n")
+        print(f"{Fore.LIGHTGREEN_EX}1{Fore.RESET}-Chat.")
+        print(f"{Fore.LIGHTGREEN_EX}2{Fore.RESET}-Users.")
+        print(f"{Fore.LIGHTGREEN_EX}3{Fore.RESET}-Messages.")
+        print(f"{Fore.LIGHTGREEN_EX}0{Fore.RESET}-Exit.")
+        print(Fore.WHITE + "\n-------------------------------------------------------------------------------")
       
 
+#--------------------------------------------------------------------------------------------------------------------   
+
+    def show_start_chat(self):
+        
+        print()
+        print(Fore.LIGHTYELLOW_EX+"*******************************************************************************************"+Fore.RESET)
+        print("-------------------------- USE "+Fore.LIGHTYELLOW_EX+"./MENU"+Fore.RESET+" TO RETURN TO MAIN MENU ------------------------------")
+        print(Fore.LIGHTYELLOW_EX+"*******************************************************************************************"+Fore.RESET)
+        print(Fore.LIGHTGREEN_EX+ "Starting chat..."+Fore.RESET)
+        
 #--------------------------------------------------------------------------------------------------------------------   
 
     def request_id(self):
@@ -88,30 +118,7 @@ class MenuManager :
         print("*********************************")
         print()
 
-#-------------------------------------------------------------------------------------------------------------------- 
-
-    def show_main_menu(self):
-
-        print("\n----------------------------------\n")
-        print("CHOOSE AN OPTION:")
-        print()
-        print("1-Chat.")
-        print("2-Users.")
-        print("3-Messages.")
-        print("0-Exit.")
-        print("\n----------------------------------\n")
-
-#--------------------------------------------------------------------------------------------------------------------
-
-    def show_menu_user_not_login(self):
-        print("-------------------------------------------------------------------------------\n")
-        print(f"{Fore.LIGHTMAGENTA_EX}1{Fore.RESET}-Enter with Username.")
-        print(f"{Fore.LIGHTMAGENTA_EX}2{Fore.RESET}-Enter with ID.")
-        print(f"{Fore.LIGHTMAGENTA_EX}3{Fore.RESET}-Create a new user.")
-        print(f"{Fore.LIGHTMAGENTA_EX}0{Fore.RESET}-Exit.")
-        print("\n-------------------------------------------------------------------------------\n")
-
-#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------        
 
     def check_username(self, username):
 
