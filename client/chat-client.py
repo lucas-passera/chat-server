@@ -1,17 +1,12 @@
 import json
-import os
 import sys
-import requests
 import websocket
 import threading
-from datetime import datetime
-
-from client.state_machine import StateMachine
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from client.menu_manager import MenuManager
 import time
 import colorama
+from datetime import datetime
+from client.state_machine import StateMachine
+from client.menu_manager import MenuManager
 from colorama import Back, Fore, Style
 
 colorama.init(autoreset=True)
@@ -23,13 +18,21 @@ class ChatClient:
 #--------------------------------------------------------------------------------------------------------------------
 
     def __init__(self):
+        self.ws = None 
         self.user_id = None  # o un valor por defecto
         self.username = None
         self.password = None
         self.user_data = {"user_id": self.user_id, "username": self.username, "password": self.password}
         self.menu_manager = MenuManager(self)
         self.menu_manager.welcome()
-        
+
+#-------------------------------------------------------------------------------------------------------------------- 
+
+    def close_connection(self):
+        if self.ws:
+            self.ws.close()  # Cierra la conexión WebSocket si está abierta
+            print(Fore.RED + "Connection has been closed.\n")
+            self.ws = None 
 #-------------------------------------------------------------------------------------------------------------------- 
                
     def on_message(self, ws, message):
@@ -38,10 +41,10 @@ class ChatClient:
             msg_data = json.loads(message)
             content = msg_data['content']  #extract message
             current_time = datetime.now().strftime("%H:%M:%S")
-            print(f"({current_time}){self.username}: {content}")
+            print(Fore.GREEN + f"({current_time}) {self.username}: {content}")
             
         except json.JSONDecodeError:
-            print(f"Error parsing the message: {message}")
+            print(Fore.RED + f"Error parsing the message: {message}")
 
         message_received_event.set()
 
@@ -50,18 +53,17 @@ class ChatClient:
     def on_open(self, ws):
 
         message_received_event.set()
-        #If the connection is open, this init send message function
         threading.Thread(target=self.send_message, args=(ws,), daemon=True).start()
 
 #--------------------------------------------------------------------------------------------------------------------  
              
     def on_close(self, ws, close_status_code, close_msg):
-        print("Connection has been closed.\n")
+        print(Fore.RED + "Connection has been closed.\n")
 
 #--------------------------------------------------------------------------------------------------------------------   
     
     def on_error(self, ws, error):
-        print(f"Error: {error}\n")
+        print(Fore.RED + f"Error: {error}\n")
 
 #--------------------------------------------------------------------------------------------------------------------  
   
@@ -86,25 +88,28 @@ class ChatClient:
             }
 
             if msg.lower() == "./menu":
-                print("\nSaliendo del chat y volviendo al menú...\n")
-                ws.close()
+                self.close_connection()
                 break
             else:
                 ws.send(json.dumps(message)) #Send msg to WebSocketApp
 
-#--------------------------------------------------------------------------------------------------------------------  
-                           
+#--------------------------------------------------------------------------------------------------------------------   
+                  
     def start_chat(self):
-        ws = websocket.WebSocketApp("ws://localhost:8081/chat", 
-                                    on_message=self.on_message,
-                                    on_error=self.on_error,
-                                    on_close=self.on_close)
-        ws.on_open = self.on_open
 
-        #Creating a new thread for run `run_forever`, open connection. 
-        wst = threading.Thread(target=ws.run_forever, daemon=True)
+        if self.ws:  # Si ya hay una conexión abierta, la cerramos primero
+            self.close_connection()
+
+        self.ws = websocket.WebSocketApp("ws://localhost:8081/chat", 
+                                        on_message=self.on_message,
+                                        on_error=self.on_error,
+                                        on_close=self.on_close)
+        self.ws.on_open = self.on_open
+
+        # Crear un nuevo hilo para ejecutar run_forever
+        wst = threading.Thread(target=self.ws.run_forever, daemon=True)
         wst.start()
-        wst.join() 
+        wst.join()
 
 #--------------------------------------------------------------------------------------------------------------------      
 #MAIN   

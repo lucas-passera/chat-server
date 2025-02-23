@@ -95,7 +95,7 @@ class StateMachine:
                     "username": self.client.username,
                     "password": self.client.password
                 }
-                
+
                 print("Enviando los siguientes datos para crear usuario:", json.dumps(self.client.user_data, indent=4))
                 response = requests.post(url + "users/", json=self.client.user_data)   
                 print(f"Respuesta del servidor: {response.status_code} - {response.text}")  # Depuración             
@@ -110,13 +110,11 @@ class StateMachine:
 
         elif status == "MAIN":
             print("----------------------------------\n")
-            print()
             print("1-Chat.")
             print("2-Users.")
             print("3-Messages.")
             print("0-Exit.")
             print("\n----------------------------------\n")
-            print("")
             self.status_update = {"status": "SELECT_OPC-MAIN_MENU", "text": "Seleccione una opción:"} 
 
         elif status == "SELECT_OPC-MAIN_MENU":

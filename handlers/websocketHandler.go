@@ -31,7 +31,15 @@ func ChatHandler(c *gin.Context) {
 		return
 	}
 
-	defer conn.Close()
+	defer func() {
+		// Remove connection from map when closed
+		mu.Lock()
+		delete(connections, conn)
+		mu.Unlock()
+		conn.Close()
+		log.Println("Client disconnected")
+	}()
+
 	mu.Lock()
 	connections[conn] = true
 	mu.Unlock()
@@ -63,14 +71,16 @@ func ChatHandler(c *gin.Context) {
 			log.Printf("Message saved: (ID-%d) UserID-%d: %s (%s)", message.ID, message.UserID, message.Content, message.CreatedAt)
 		}
 
+		// Broadcast the message to all active clients
 		mu.Lock()
-
 		for c := range connections {
 			if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
-				log.Println("Error sending message", err)
+				log.Println("Error sending message:", err)
+				// If there's an error sending a message, remove this client
+				c.Close()
+				delete(connections, c)
 			}
 		}
-
 		mu.Unlock()
 	}
 
