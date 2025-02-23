@@ -18,9 +18,9 @@ class MenuManager :
     def welcome(self):
         
         print()
-        print(Fore.YELLOW + "----------------------------------")
-        print(Fore.WHITE + "     ¡WELCOME TO CHAT-SERVER!     ")
-        print(Fore.YELLOW + "----------------------------------")
+        print(Fore.YELLOW + "-------------------------------------------------------------------------------")
+        print(Fore.WHITE + "                           ¡WELCOME TO CHAT-SERVER!     ")
+        print(Fore.YELLOW + "-------------------------------------------------------------------------------")
         print()
       
 
@@ -103,13 +103,13 @@ class MenuManager :
 
 #--------------------------------------------------------------------------------------------------------------------
 
-    def show_menu_user_not_found(self):
-        print("\n----------------------------------\n")
-        print("1-Try again.")
-        print("2-Enter with ID.")
-        print("3-Create a new user.")
-        print("0-Exit.")
-        print("\n----------------------------------\n")
+    def show_menu_user_not_login(self):
+        print("-------------------------------------------------------------------------------\n")
+        print(f"{Fore.LIGHTMAGENTA_EX}1{Fore.RESET}-Enter with Username.")
+        print(f"{Fore.LIGHTMAGENTA_EX}2{Fore.RESET}-Enter with ID.")
+        print(f"{Fore.LIGHTMAGENTA_EX}3{Fore.RESET}-Create a new user.")
+        print(f"{Fore.LIGHTMAGENTA_EX}0{Fore.RESET}-Exit.")
+        print("\n-------------------------------------------------------------------------------\n")
 
 #--------------------------------------------------------------------------------------------------------------------
 
