@@ -19,7 +19,7 @@ class ChatClient:
 
     def __init__(self):
         self.ws = None 
-        self.user_id = None  # o un valor por defecto
+        self.user_id = None  
         self.username = None
         self.password = None
         self.user_data = {"user_id": self.user_id, "username": self.username, "password": self.password}
@@ -35,11 +35,11 @@ class ChatClient:
 
 #-------------------------------------------------------------------------------------------------------------------- 
                
-    def on_message(self, ws, message):   #client receives msg
+    def on_message(self, ws, message):   
 
         try:
             msg_data = json.loads(message)
-            content = msg_data['content']  #extract message
+            content = msg_data['content']  
             current_time = datetime.now().strftime("%H:%M:%S")
             print(f"({current_time}) {Fore.LIGHTGREEN_EX}{self.username}{Fore.RESET}: {content}")
             
@@ -98,7 +98,7 @@ class ChatClient:
                   
     def start_chat(self):
 
-        if self.ws:  # Si ya hay una conexión abierta, la cerramos primero
+        if self.ws:  #first, close some open connection
             self.close_connection()
 
         self.ws = websocket.WebSocketApp("ws://localhost:8081/chat", 
@@ -107,7 +107,7 @@ class ChatClient:
                                         on_close=self.on_close)
         self.ws.on_open = self.on_open
 
-        # Crear un nuevo hilo para ejecutar run_forever
+        # create thread for run forever
         wst = threading.Thread(target=self.ws.run_forever, daemon=True)
         wst.start()
         wst.join()

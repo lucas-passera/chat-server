@@ -35,7 +35,7 @@ class MenuManager :
 #-------------------------------------------------------------------------------------------------------------------- 
 
     def show_main_menu(self):
-
+        
         print(Fore.WHITE + "-------------------------------------------------------------------------------\n")
         print(f"{Fore.LIGHTGREEN_EX}1{Fore.RESET}-Chat.")
         print(f"{Fore.LIGHTGREEN_EX}2{Fore.RESET}-Users.")
@@ -47,56 +47,13 @@ class MenuManager :
 #--------------------------------------------------------------------------------------------------------------------   
 
     def show_start_chat(self):
-        
-        print()
+        print("\n\n\n\n\n\n")
         print(Fore.LIGHTYELLOW_EX+"*******************************************************************************************"+Fore.RESET)
         print("-------------------------- USE "+Fore.LIGHTYELLOW_EX+"./MENU"+Fore.RESET+" TO RETURN TO MAIN MENU ------------------------------")
         print(Fore.LIGHTYELLOW_EX+"*******************************************************************************************"+Fore.RESET)
-        print(Fore.LIGHTGREEN_EX+ "Starting chat..."+Fore.RESET)
-        
-#--------------------------------------------------------------------------------------------------------------------   
-
-    def request_id(self):
-
-        while True:
-            id= input("\nEnter your user ID:")
-            print()
-
-            if 0 < len(id) <= 5 and id.isdigit():
-                return id
-            else:
-                print("Invalid ID. The user ID must be between 1 and 5 digits long. Only numbers are allowed.")
-
-#--------------------------------------------------------------------------------------------------------------------   
-
-    def request_username(self):
-
-        while True:
-            username = input("Enter your username:")
-            print()
-
-            if 0 < len(username) <= 15 :
-                return username
-            else:
-                print("Invalid username. The username must be between 1 and 15 characters")
-                
-#--------------------------------------------------------------------------------------------------------------------   
-
-    def request_pass(self):
-
-        while True:
-            password = input("Please enter your password o 0 para salir: ")
-
-            if (password=="0"):
-                return password  
-              
-            else:
-                if not password:
-                    print("Password cannot be empty. Please try again.")
-                elif len(password) > 15:
-                    print("Password is too long. Maximum length is 15 characters.")
-                else:
-                    return password
+        print()
+        print(Fore.LIGHTYELLOW_EX+ "Starting chat..."+Fore.RESET)
+                      
         
 #--------------------------------------------------------------------------------------------------------------------
        
@@ -107,17 +64,6 @@ class MenuManager :
         else:
             return False
 
-#--------------------------------------------------------------------------------------------------------------------  
-
-    def show_starting_chat(self):
-
-        print("Starting chat...")
-        print()
-        print("*********************************")
-        print("Use ./menu to return to the menu.")
-        print("*********************************")
-        print()
-
 #--------------------------------------------------------------------------------------------------------------------        
 
     def check_username(self, username):
@@ -126,24 +72,16 @@ class MenuManager :
         try:
             response = requests.get(url)
             if response.status_code == 200:
-                print("Username is available")
+                print("Username is "+Fore.LIGHTGREEN_EX+"available"+Fore.RESET)
                 return True
             elif response.status_code == 409:
-                print("Username already exists. Please choose another one.")
+                print(Fore.LIGHTRED_EX+"Username already exists. "+Fore.RESET+"\n")
                 return False
             else:
-                print(f"Error: {response.status_code}, Could not check username")
+                print(f"{Fore.LIGHTRED_EX}Error:{Fore.RESET} {response.status_code}, Could not check username")
                 return False
         except requests.exceptions.RequestException as e:
-            print(f"Error connecting to server: {e}")
+            print(f"{Fore.LIGHTRED_EX}Error connecting to server:{Fore.RESET} {e}")
             return False
         
 #--------------------------------------------------------------------------------------------------------------------
-
-    def get_valid_username(self):
-        while True:
-            username = input("Please enter your username: ")
-            if self.check_username(username):
-                return username
-            else:
-                print("Try again with a different username.")
