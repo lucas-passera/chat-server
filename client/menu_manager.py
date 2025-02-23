@@ -4,7 +4,7 @@ import bcrypt
 from colorama import Fore
 import requests
 
-url = "http://localhost:8081/"
+url="http://184.72.171.214:8081/"
 
 class MenuManager :
 
@@ -68,7 +68,8 @@ class MenuManager :
 
     def check_username(self, username):
 
-        url = f"http://localhost:8081/users/check-username/{username}"  # Cambia el puerto si es necesario
+        #url = f"http://localhost:8081/users/check-username/{username}"  LOCAL
+        url = f"{url}users/check-username/{username}"  # EC2
         try:
             response = requests.get(url)
             if response.status_code == 200:
