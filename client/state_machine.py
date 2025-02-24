@@ -12,6 +12,7 @@ class StateMachine:
 
     def __init__(self, client):
         self.client = client
+        ## OWL_TODO: Confusing name, I would name this current_status or current_state
         self.status_update = {
             "status": "NOT-LOGIN-MENU",
             "text": f"Enter ({Fore.LIGHTGREEN_EX + 'Y' + Fore.RESET}) to access the login menu or {Fore.LIGHTGREEN_EX + 'ANY KEY' + Fore.RESET} to exit:"
@@ -30,7 +31,16 @@ class StateMachine:
 
 #--------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------- 
-       
+
+    ## OWL_TODO: I guess this is one way to do it, but it's definitely not what I had in mind. So this processInput method does
+    ##  not return anything. The state of the machine is held within the machine itself, so it becomes a stateful object. It has internal state stored in self.status_update.
+    ## It's always better to have deterministic stateless objects, so ideally this should be a method that receives the current state and the input and returns the new state.
+    ## And this new state should be stored elsewhere outside the state machine.
+
+    ## This is not an object that is easy to test, because it has internal state that is not exposed.
+    ## Creating unit tests first avoids this kind of design anti-pattern, since it forces you to write methods that can be easily tested.
+
+    ## Logic looks pretty much ok, but instead of storing the resulting state within the machine, it should be returned.
     def processInput(self, input_user):
 
         status = self.status_update["status"]
@@ -41,6 +51,8 @@ class StateMachine:
 
             if input_user=="y" or input_user == "Y":
 
+                ## OWL_TODO: Two things, why is the menu_manager part of the client? That's odd..
+                ## And the next thing, this is just printing text, should this have been printed as part of some other state?
                 self.client.menu_manager.show_menu_user_not_login()
                 self.status_update = {"status": "SELECT_OPC-NOT_LOGIN_MENU", "text": f"Select an {Fore.LIGHTGREEN_EX}OPTION{Fore.RESET}:"}
 
@@ -75,6 +87,9 @@ class StateMachine:
 #--------Status Divisor--------
 
         elif status == "ENTER_WITH_USERNAME":
+
+            ## OWL_TODO: Nothing that has while true will ever be ok, this for example, instead of reading in a loop here for ever,
+            ##  could just return a new state called INVALID_USERNAME, with a text asking to enter it again.
             #validator
             while True:
                 if 0 < len(input_user) <= 15 :
@@ -138,6 +153,7 @@ class StateMachine:
                 print("Exiting...")
                 self.status_update = {"status": "EXIT", "text": "Saliendo..."}
 
+            ## Why is is the client the owner of the menu_manager?? Why logic to check password lives on menu_manager???
             elif self.client.menu_manager.checkpasswordhash(input_user.encode(), self.client.user_data["password"].encode()):
 
                 self.status_update = {
@@ -173,14 +189,16 @@ class StateMachine:
 
                         user_data = response.json()["user"]    # recibo el json del server
 
+                        ## OWL_TODO Some of this seems redundant, and it's clearly a side effect, you couldn't guess that by processing this state you would be setting values on the client.
+                        ##  This would be good to change, but lower priority as it would be easier after refactoring the processInput method to actually return states.
                         self.client.user_data = {  #guardo solo lo que me interesa aca
                             "user_id": user_data.get("ID"),
                             "username": user_data.get("username"),
                             "password": user_data.get("password")
                         }
-
                         self.client.user_id = user_data.get("ID")  # Sincronizamos
                         self.client.username = user_data.get("username")
+
                         self.status_update = {
                             "status": "LOGIN_REQUEST_PASS",
                             "text": "Enter your password:"
@@ -196,10 +214,11 @@ class StateMachine:
                         }
 
                 else:
+                    ## OWL_TODO Should probably be returning a state.
                     print(Fore.LIGHTRED_EX + "INVALID ID." + Fore.RESET + " (ID MUST BE IN THIS RANGE: 0<ID<10000).\nTry again. ")
 
             except ValueError:  # Maneja el caso en que input_user no sea un número
-
+                ## OWL_TODO Should probably be returning a state.
                 print(Fore.LIGHTRED_EX + "INVALID INPUT. Please enter a valid numeric ID." + Fore.RESET)
 
 #--------Status Divisor--------
@@ -207,9 +226,11 @@ class StateMachine:
         elif status == "CREATE_USER":
 
             while len(input_user) < 1 or len(input_user) > 15:
+                ## Ahhh, no while true, thats better, but this should return a status and not read input here.
                 input_user = input(Fore.LIGHTRED_EX + "Invalid username. The username must be between 1 and 15 characters.\n"+Fore.RESET+"Try again:")
                 print()
 
+            ## Why is is the client the owner of the menu_manager?? Why logic to check username lives on menu_manager???
             if self.client.menu_manager.check_username(input_user):
 
                 self.client.username=input_user
@@ -239,6 +260,7 @@ class StateMachine:
 
             if input_user=="y" or input_user == "Y":
 
+                ## OWL_TODO: Why is it assigned to this object on the client?
                 self.client.user_data = {
                     "username": self.client.username,
                     "password": self.client.password
@@ -255,9 +277,12 @@ class StateMachine:
 
                     print(f"Response Status: {Fore.LIGHTGREEN_EX }{response.status_code} OK!\n {Fore.RESET}")
                     response_data = response.json()  
-                    self.client.user_id = response_data["user"].get("ID")  
+
+                    ## OWL_TODO Ahhh, side effects.
+                    self.client.user_id = response_data["user"].get("ID")
                     self.client.username = response_data["user"].get("username")  
                     self.client.password = response_data["user"].get("password")  
+
                     self.status_update = {
                         "status": "MAIN", 
                         "text": f"{Fore.LIGHTGREEN_EX}User created successfully!\n{Fore.RESET}" + 
@@ -267,7 +292,6 @@ class StateMachine:
                     }
 
                 else:
-
                     print(f"{Fore.LIGHTRED_EX }ERROR SAVING.{Fore.RESET}")
                     self.status_update = {"status": "EXIT", "text": f"Exiting"}
 
@@ -278,6 +302,7 @@ class StateMachine:
 
         elif status == "MAIN":
 
+            ### OWL_TODO this is just printing text, should this have been printed as part of some other state?
             self.client.menu_manager.show_main_menu()
             self.status_update = {"status": "SELECT_OPC-MAIN_MENU", "text": f"Select an {Fore.LIGHTGREEN_EX}option{Fore.RESET}:"}
         
@@ -287,21 +312,25 @@ class StateMachine:
 
             if input_user == "1":
 
+                ### OWL_TODO this is just printing text, should this have been printed as part of some other state?
                 self.client.menu_manager.show_start_chat()
                 self.status_update = {"status": "START_CHAT", "text": "Enter any char to init conversation:"}
 
             elif input_user == "2":
 
+                ### OWL_TODO So this is something that I think should be returned as part of the state response. State response could have "status" "text" and another object called "data", the format of that object depends on the "status" returned.
                 print("Showing users...")
                 print()
                 response = requests.get(f"{url}users/") 
                 formatted_response = json.dumps(response.json(), indent=4)
                 print(formatted_response)
                 print()
+
                 self.status_update = {"status": "MAIN", "text": f"{Fore.LIGHTGREEN_EX}Enter any char to continue:{Fore.RESET}"}
 
             elif input_user == "3":
 
+                ## OWL_TODO Same as above.
                 print("Showing messages...")
                 print()
                 response = requests.get(f"{url}messages/") 
