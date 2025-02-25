@@ -39,7 +39,9 @@ class ChatClient:
 
         try:
             msg_data = json.loads(message)
-            content = msg_data['content']  
+            print(f"Mensaje recibido: {msg_data}") 
+            content = msg_data['content']
+            self.username = msg_data['username']  
             current_time = datetime.now().strftime("%H:%M:%S")
             print(f"({current_time}) {Fore.LIGHTGREEN_EX}{self.username}{Fore.RESET}: {content}")
             
@@ -84,7 +86,8 @@ class ChatClient:
             sys.stdout.flush()
 
             message = {
-                "user_id": int(self.user_data["user_id"]),  
+                "user_id": int(self.user_data["user_id"]), 
+                "username": self.user_data["username"] ,
                 "content": msg
             }
 
