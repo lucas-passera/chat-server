@@ -8,7 +8,8 @@ import (
 	"github.com/lucas-passera/chat-server/repository"
 )
 
-type MessageService struct{}
+type MessageService struct {
+}
 
 func NewMessageService() *MessageService {
 	return &MessageService{}
@@ -50,4 +51,8 @@ func (s *MessageService) DeleteMessage(id uint) error {
 		return errors.New("message not found")
 	}
 	return repository.DeleteMessage(id)
+}
+
+func (s *MessageService) DeleteAllMessages() error {
+	return repository.DeleteAllMessages()
 }
