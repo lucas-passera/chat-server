@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/lucas-passera/chat-server/entities"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/entities"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

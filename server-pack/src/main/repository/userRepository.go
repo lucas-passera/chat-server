@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 
-	"github.com/lucas-passera/chat-server/database"
-	"github.com/lucas-passera/chat-server/entities"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/database"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/entities"
 	"gorm.io/gorm"
 )
 

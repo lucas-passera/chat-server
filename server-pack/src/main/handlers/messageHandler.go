@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lucas-passera/chat-server/entities"
-	"github.com/lucas-passera/chat-server/service"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/entities"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/service"
 )
 
 func CreateMessage(c *gin.Context) {

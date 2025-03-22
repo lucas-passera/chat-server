@@ -1,4 +1,4 @@
-module github.com/lucas-passera/chat-server
+module github.com/lucas-passera/chat-server/server-pack
 
 go 1.23.6
 

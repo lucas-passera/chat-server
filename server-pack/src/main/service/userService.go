@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 
-	"github.com/lucas-passera/chat-server/entities"
-	"github.com/lucas-passera/chat-server/repository"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/entities"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 

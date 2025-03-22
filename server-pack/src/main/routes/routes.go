@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lucas-passera/chat-server/handlers"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/handlers"
 )
 
 func SetupRoutes(router *gin.Engine) {
