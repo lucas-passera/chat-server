@@ -1,7 +1,5 @@
-import http
 import json
 import sys
-import bcrypt
 from colorama import Fore
 from DisplayManager import DisplayManager
 import requests
@@ -105,6 +103,7 @@ class StateMachine:
                     self.EXIT,
                     "exiting"
                 )
+                return self.current_status
             else:
                 response = requests.get(f"{url}users/username/{username}")
 
@@ -223,7 +222,7 @@ class StateMachine:
 
             try:
 
-                input_user = int(input_user)  # Convertir a entero
+                input_user = int(input_user)  
 
                 if input_user == 0:
 
@@ -242,7 +241,7 @@ class StateMachine:
 
                         print("Response Status:", Fore.LIGHTGREEN_EX + str(response.status_code) + " OK" + Fore.RESET)
 
-                        user_data = response.json()["user"]    # recibo el json del server
+                        user_data = response.json()["user"]    # json's server
 
                         self.client.user_data = {  #guardo solo lo que me interesa aca
                             "user_id": user_data.get("ID"),
@@ -277,7 +276,7 @@ class StateMachine:
                     )
                     return self.current_status
 
-            except ValueError:  # Maneja el caso en que input_user no sea un número
+            except ValueError:  #if input user is not a number
                 self.current_status = self.update_status(
                         "INVALID INPUT",
                         self.ENTER_WITH_ID,

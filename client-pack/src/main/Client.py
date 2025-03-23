@@ -99,7 +99,7 @@ class Client:
         if self.ws:  #first, close some open connection
             self.close_connection()
 
-        self.ws = websocket.WebSocketApp("ws://localhost:8081/chat", #"ws://184.72.171.214:8081/chat"
+        self.ws = websocket.WebSocketApp("ws://localhost:8081/chat", #"ws://184.72.171.214:8081/chat" AWS EC2 INSTANCE
                                         on_message=self.on_message,
                                         on_error=self.on_error,
                                         on_close=self.on_close)

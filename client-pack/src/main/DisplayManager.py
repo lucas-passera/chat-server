@@ -1,6 +1,4 @@
-import bcrypt
 from colorama import Fore
-import requests
 
 #url="http://184.72.171.214:8081/"
 url="http://localhost:8081/"
