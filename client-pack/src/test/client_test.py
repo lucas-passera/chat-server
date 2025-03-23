@@ -1,15 +1,21 @@
 import json
 import pytest
-import asyncio
 import websockets
 
 WS_URL = "ws://localhost:8081/chat" 
 
+##------------------------------------------------------------------------------------------
 
 @pytest.mark.asyncio
 async def test_check_websocket_connection():
     async with websockets.connect(WS_URL) as ws:
-        assert ws.open #Si el servidor está funcionando y acepta conexiones, la prueba pasa.
+        try:
+            await ws.ping()
+            assert True  # Si el ping no lanza excepciones, la conexión está abierta
+        except Exception:
+            assert False 
+
+##------------------------------------------------------------------------------------------
 
 @pytest.mark.asyncio
 async def test_send_and_receive_message():
@@ -23,3 +29,5 @@ async def test_send_and_receive_message():
 
         assert "content" in response_data
         assert response_data["content"] == "Hi server"
+
+##------------------------------------------------------------------------------------------

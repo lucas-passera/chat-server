@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/lucas-passera/chat-server/server-pack/src/main/database"
-
-	"github.com/lucas-passera/chat-server/server-pack/src/main/routes"
-
 	"github.com/gin-gonic/gin"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/database"
+	"github.com/lucas-passera/chat-server/server-pack/src/main/routes"
 )
 
 func main() {

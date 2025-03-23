@@ -10,7 +10,7 @@ from colorama import Back, Fore, Style
 colorama.init(autoreset=True)
 message_received_event = threading.Event()
 url = "http://localhost:8081/"
-#url="http://184.72.171.214:8081/"
+#url="http://184.72.171.214:8081/" this is for ec2 remote instance
 
 class Client:
 #--------------------------------------------------------------------------------------------------------------------
